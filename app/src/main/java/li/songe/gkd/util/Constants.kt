@@ -10,6 +10,7 @@ const val DEFAULT_SUBS_UPDATE_URL =
 const val UPDATE_URL = "https://registry.npmmirror.com/@gkd-kit/app/latest/files/index.json"
 
 const val REPOSITORY_URL = "https://github.com/gkd-kit/gkd"
+const val FORKED_REPOSITORY_URL = "https://github.com/Jack251970/gkd"
 
 val safeRemoteBaseUrls = arrayOf(
     "https://registry.npmmirror.com/@gkd-kit/",
