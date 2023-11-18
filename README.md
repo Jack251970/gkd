@@ -2,6 +2,8 @@
 
 基于 **无障碍** + **高级选择器** + **订阅规则** 的自定义屏幕点击 APP
 
+* 注：本版本为克隆版本，基于源项目进行了一定的定制和优化。
+
 ## 安装
 
 - [releases](https://github.com/gkd-kit/gkd/releases)
