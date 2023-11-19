@@ -39,7 +39,7 @@ class App : Application() {
         super.onCreate()
         _app = this
 
-        @Suppress("SENSELESS_COMPARISON") if (BuildConfig.BUGLY_TOKEN != null) {
+        if (BuildConfig.BUGLY_TOKEN != null) {
             CrashReport.setDeviceModel(this, DeviceInfo.instance.model)
             CrashReport.setIsDevelopmentDevice(this, BuildConfig.DEBUG)
             CrashReport.initCrashReport(applicationContext,
