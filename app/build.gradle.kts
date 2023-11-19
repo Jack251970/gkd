@@ -165,6 +165,7 @@ dependencies {
     implementation(libs.ktor.serialization.kotlinx.json)
 
     implementation(libs.google.accompanist.drawablepainter)
+    implementation(libs.google.accompanist.systemuicontroller)
 
     implementation(libs.kotlinx.serialization.json)
     implementation(libs.kotlinx.collections.immutable)
@@ -187,6 +188,4 @@ dependencies {
 
     implementation(libs.coil.compose)
     implementation(libs.coil.gif)
-
-    implementation("com.google.accompanist:accompanist-systemuicontroller:0.32.0")
 }

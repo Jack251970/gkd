@@ -134,6 +134,11 @@ dependencyResolutionManagement {
                 "com.google.accompanist:accompanist-drawablepainter:0.32.0"
             )
 
+            library(
+                "google.accompanist.systemuicontroller",
+                "com.google.accompanist:accompanist-systemuicontroller:0.32.0"
+            )
+
             library("junit", "junit:junit:4.13.2")
 
             val ktorVersion = "2.3.5"
@@ -191,6 +196,7 @@ dependencyResolutionManagement {
 
 //            https://github.com/aclassen/ComposeReorderable
             library("others.reorderable", "org.burnoutcrew.composereorderable:reorderable:0.9.6")
+
         }
     }
 }
