@@ -23,6 +23,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.app.NotificationManagerCompat
@@ -30,6 +31,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.blankj.utilcode.util.ToastUtils
 import kotlinx.coroutines.Dispatchers
 import li.songe.gkd.MainActivity
+import li.songe.gkd.R
 import li.songe.gkd.appScope
 import li.songe.gkd.service.GkdAbService
 import li.songe.gkd.ui.component.AuthCard
@@ -55,7 +57,7 @@ fun ControlPage() {
     val store by storeFlow.collectAsState()
 
     val gkdAccessRunning by usePollState { GkdAbService.isRunning() }
-    val notifEnabled by usePollState {
+    val notifyEnabled by usePollState {
         NotificationManagerCompat.from(context).areNotificationsEnabled()
     }
     val canDrawOverlays by usePollState { Settings.canDrawOverlays(context) }
@@ -66,8 +68,10 @@ fun ControlPage() {
             state = rememberScrollState()
         )
     ) {
-        if (!notifEnabled) {
-            AuthCard(title = "通知权限", desc = "用于启动后台服务,展示服务运行状态", onAuthClick = {
+        if (!notifyEnabled) {
+            AuthCard(title = stringResource(R.string.notification_permission),
+                desc = stringResource(R.string.notification_permission_desc),
+                onAuthClick = {
                 val intent = Intent()
                 intent.action = Settings.ACTION_APP_NOTIFICATION_SETTINGS
                 intent.putExtra(Settings.EXTRA_APP_PACKAGE, context.packageName)
@@ -78,10 +82,10 @@ fun ControlPage() {
         }
 
         if (!gkdAccessRunning) {
-            AuthCard(title = "无障碍权限",
-                desc = "用于获取屏幕信息,点击屏幕上的控件",
+            AuthCard(title = stringResource(R.string.accessibility_permission),
+                desc = stringResource(R.string.accessibility_permission_desc),
                 onAuthClick = {
-                    if (notifEnabled) {
+                    if (notifyEnabled) {
                         appScope.launchTry(Dispatchers.IO) {
                             val intent = Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS)
                             intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
@@ -90,15 +94,15 @@ fun ControlPage() {
                             context.startActivity(intent)
                         }
                     } else {
-                        ToastUtils.showShort("必须先开启[通知权限]")
+                        ToastUtils.showShort(context.getString(R.string.enable_notification_permission_first))
                     }
                 })
             Divider()
         }
 
         if (!canDrawOverlays) {
-            AuthCard(title = "悬浮窗权限",
-                desc = "用于后台提示,显示保存快照按钮等功能",
+            AuthCard(title = stringResource(R.string.draw_overlays_permission),
+                desc = stringResource(R.string.draw_overlays_permission_desc),
                 onAuthClick = {
                     val intent = Intent(
                         Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
@@ -110,8 +114,8 @@ fun ControlPage() {
         }
 
         if (gkdAccessRunning) {
-            TextSwitch(name = "服务开启",
-                desc = "保持服务开启,根据订阅规则匹配屏幕目标节点",
+            TextSwitch(name = stringResource(R.string.enable_service),
+                desc = stringResource(R.string.enable_service_desc),
                 checked = store.enableService,
                 onCheckedChange = {
                     updateStorage(
@@ -134,11 +138,11 @@ fun ControlPage() {
         ) {
             Column(modifier = Modifier.weight(1f)) {
                 Text(
-                    text = "点击记录", fontSize = 18.sp
+                    text = stringResource(R.string.click_history), fontSize = 18.sp
                 )
                 Spacer(modifier = Modifier.height(2.dp))
                 Text(
-                    text = "如误触可在此快速定位关闭规则", fontSize = 14.sp
+                    text = stringResource(R.string.quickly_locate_disabling_rules_here), fontSize = 14.sp
                 )
             }
             Icon(imageVector = Icons.Default.KeyboardArrowRight, contentDescription = null)
@@ -153,7 +157,7 @@ fun ControlPage() {
             Text(text = subsStatus, fontSize = 18.sp)
             if (latestRecordDesc != null) {
                 Text(
-                    text = "最近点击: $latestRecordDesc", fontSize = 14.sp
+                    text = stringResource(R.string.latest_clicking, latestRecordDesc!!), fontSize = 14.sp
                 )
             }
         }
