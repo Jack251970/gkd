@@ -23,10 +23,7 @@ fun AppTheme(
     content: @Composable () -> Unit,
 ) {
     // https://developer.android.com/jetpack/compose/designsystems/material3?hl=zh-cn
-    val scope = rememberCoroutineScope()
-    val enableDarkTheme by storeFlow.map(scope) { s -> s.enableDarkTheme }.collectAsState()
-    val systemInDarkTheme = isSystemInDarkTheme()
-    val darkTheme = enableDarkTheme ?: systemInDarkTheme
+    val darkTheme = isDarkTheme()
     val dynamicColor = Build.VERSION.SDK_INT >= Build.VERSION_CODES.S
     val colorScheme = when {
         dynamicColor && darkTheme -> dynamicDarkColorScheme(LocalContext.current)
@@ -37,4 +34,12 @@ fun AppTheme(
     MaterialTheme(
         colorScheme = colorScheme, content = content
     )
+}
+
+@Composable
+fun isDarkTheme(): Boolean {
+    val scope = rememberCoroutineScope()
+    val enableDarkTheme by storeFlow.map(scope) { s -> s.enableDarkTheme }.collectAsState()
+    val systemInDarkTheme = isSystemInDarkTheme()
+    return enableDarkTheme ?: systemInDarkTheme
 }

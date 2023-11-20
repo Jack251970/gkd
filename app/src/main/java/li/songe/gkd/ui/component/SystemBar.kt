@@ -1,12 +1,12 @@
 package li.songe.gkd.ui.component
 
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.SideEffect
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.luminance
 import com.google.accompanist.systemuicontroller.SystemUiController
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
+import li.songe.gkd.ui.theme.isDarkTheme
 
 @Composable
 fun TransparentSystemBars(bgColor: Color = Color.Transparent) {
@@ -108,7 +108,7 @@ fun setSystemBarsColor(
 @Composable
 fun shouldUseDarkModeIcons(statusBarColor: Color):Boolean{
     return if (statusBarColor == Color.Transparent){
-        !isSystemInDarkTheme()
+        !isDarkTheme()
     }
     else
     {
