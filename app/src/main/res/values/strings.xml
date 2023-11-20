@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">GKD</string>
+    <string name="yes">是</string>
+    <string name="no">否</string>
 
     <!-- service -->
     <!-- accessibility -->
@@ -14,12 +16,45 @@
     <string name="app_desc">一款基于&#160;无障碍+高级选择器+订阅规则&#160;的自定义屏幕点击软件。</string>
     <string name="app_desc_appendix">注：本版本为克隆版本，基于源项目进行了一定的定制和优化。</string>
     <string name="and_divider">，</string>
-    <string name="project_author">项目作者:&#160;</string>
-    <string name="opensource_address">开源地址:&#160;</string>
+    <string name="project_author">项目作者：</string>
+    <string name="opensource_address">开源地址：</string>
     <string name="original_opensource_address">源项目</string>
     <string name="forked_opensource_address">克隆项目</string>
-    <string name="version_code">版本代码:&#160;</string>
-    <string name="version_name">版本名称:&#160;</string>
-    <string name="build_date">构建时间:&#160;</string>
-    <string name="build_type">构建类型:&#160;</string>
+    <string name="version_code">版本代码：</string>
+    <string name="version_name">版本名称：</string>
+    <string name="build_date">构建时间：</string>
+    <string name="build_type">构建类型：</string>
+
+    <!-- subscription manage page -->
+    <string name="subscription">订阅</string>
+    <string name="view_rules">查看规则</string>
+    <string name="share_files">分享文件</string>
+    <string name="copy_link">复制链接</string>
+    <string name="feedback">问题反馈</string>
+    <string name="delete_subscription">删除订阅</string>
+
+    <string name="share_subscription_files">分享订阅文件</string>
+    <string name="copy_success">复制成功</string>
+    <string name="if_delete">是否删除 %s？</string>
+
+    <string name="import_default_subscription">导入默认订阅</string>
+    <string name="import_other_subscription">导入其他订阅</string>
+
+    <string name="input_subscription_link">请输入订阅链接</string>
+    <string name="illegal_link">非法链接</string>
+    <string name="link_exists">链接已存在</string>
+    <string name="add">添加</string>
+    <string name="subscription_details">订阅详情</string>
+    <string name="name">名称：</string>
+    <string name="version">版本：</string>
+    <string name="author">作者：</string>
+    <string name="rule_info">规则：%d应用/%d规则组</string>
+    <string name="update">更新：</string>
+    <string name="off">关闭</string>
+
+    <!-- control page -->
+    <string name="homepage">主页</string>
+
+    <!-- settings page -->
+    <string name="settings">设置</string>
 </resources>

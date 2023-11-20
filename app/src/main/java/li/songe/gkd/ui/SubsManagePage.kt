@@ -43,6 +43,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
@@ -52,6 +53,7 @@ import com.blankj.utilcode.util.ClipboardUtils
 import com.blankj.utilcode.util.ToastUtils
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import li.songe.gkd.R
 import li.songe.gkd.data.SubsItem
 import li.songe.gkd.data.SubscriptionRaw
 import li.songe.gkd.db.DbSet
@@ -75,6 +77,7 @@ import org.burnoutcrew.reorderable.reorderable
 val subsNav = BottomNavItem(
     label = "订阅", icon = SafeR.ic_link, route = "subscription"
 )
+
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
@@ -210,7 +213,7 @@ fun SubsManagePage() {
                 Column {
                     val subsRawVal = subsIdToRaw[menuSubItemVal.id]
                     if (subsRawVal != null) {
-                        Text(text = "查看规则", modifier = Modifier
+                        Text(text = stringResource(R.string.view_rules), modifier = Modifier
                             .clickable {
                                 menuSubItem = null
                                 navController.navigate(SubsPageDestination(subsRawVal.id))
@@ -220,28 +223,31 @@ fun SubsManagePage() {
                         Divider()
                     }
                     if (menuSubItemVal.id < 0 && subsRawVal != null && menuSubItemVal.subsFile.exists()) {
-                        Text(text = "分享文件", modifier = Modifier
+                        Text(text = stringResource(R.string.share_files), modifier = Modifier
                             .clickable {
                                 menuSubItem = null
-                                context.shareFile(menuSubItemVal.subsFile, "分享订阅文件")
+                                context.shareFile(
+                                    menuSubItemVal.subsFile,
+                                    context.getString(R.string.share_files)
+                                )
                             }
                             .fillMaxWidth()
                             .padding(16.dp))
                         Divider()
                     }
                     if (menuSubItemVal.updateUrl != null) {
-                        Text(text = "复制链接", modifier = Modifier
+                        Text(text = stringResource(R.string.copy_link), modifier = Modifier
                             .clickable {
                                 menuSubItem = null
                                 ClipboardUtils.copyText(menuSubItemVal.updateUrl)
-                                ToastUtils.showShort("复制成功")
+                                ToastUtils.showShort(context.getString(R.string.copy_success))
                             }
                             .fillMaxWidth()
                             .padding(16.dp))
                         Divider()
                     }
                     if (subsRawVal?.supportUri != null) {
-                        Text(text = "问题反馈", modifier = Modifier
+                        Text(text = stringResource(R.string.feedback), modifier = Modifier
                             .clickable {
                                 menuSubItem = null
                                 context.startActivity(
@@ -255,7 +261,7 @@ fun SubsManagePage() {
                         Divider()
                     }
                     if (menuSubItemVal.id != -2L) {
-                        Text(text = "删除订阅", modifier = Modifier
+                        Text(text = stringResource(R.string.delete_subscription), modifier = Modifier
                             .clickable {
                                 deleteSubItem = menuSubItemVal
                                 menuSubItem = null
@@ -271,20 +277,23 @@ fun SubsManagePage() {
 
     deleteSubItem?.let { deleteSubItemVal ->
         AlertDialog(onDismissRequest = { deleteSubItem = null },
-            title = { Text(text = "是否删除 ${subsIdToRaw[deleteSubItemVal.id]?.name}?") },
+            title = {
+                Text(
+                    text = stringResource(R.string.if_delete, subsIdToRaw[deleteSubItemVal.id]?.name ?: "")
+                )},
             confirmButton = {
                 TextButton(onClick = scope.launchAsFn {
                     deleteSubItem = null
                     deleteSubItemVal.removeAssets()
                 }) {
-                    Text(text = "是", color = MaterialTheme.colorScheme.error)
+                    Text(text = stringResource(R.string.yes), color = MaterialTheme.colorScheme.error)
                 }
             },
             dismissButton = {
                 TextButton(onClick = {
                     deleteSubItem = null
                 }) {
-                    Text(text = "否")
+                    Text(text = stringResource(R.string.no))
                 }
             })
     }
@@ -298,7 +307,7 @@ fun SubsManagePage() {
                 shape = RoundedCornerShape(16.dp),
             ) {
                 Column {
-                    Text(text = "导入默认订阅", modifier = Modifier
+                    Text(text = stringResource(R.string.import_default_subscription), modifier = Modifier
                         .clickable {
                             showAddDialog = false
                             vm.addSubsFromUrl(DEFAULT_SUBS_UPDATE_URL)
@@ -306,7 +315,7 @@ fun SubsManagePage() {
                         .fillMaxWidth()
                         .padding(16.dp))
                     Divider()
-                    Text(text = "导入其它订阅", modifier = Modifier
+                    Text(text = stringResource(R.string.import_other_subscription), modifier = Modifier
                         .clickable {
                             showAddDialog = false
                             showAddLinkDialog = true
@@ -326,7 +335,7 @@ fun SubsManagePage() {
         }
     }
     if (showAddLinkDialog) {
-        AlertDialog(title = { Text(text = "请输入订阅链接") }, text = {
+        AlertDialog(title = { Text(text = stringResource(R.string.input_subscription_link)) }, text = {
             OutlinedTextField(
                 value = link,
                 onValueChange = { link = it.trim() },
@@ -337,41 +346,41 @@ fun SubsManagePage() {
         }, onDismissRequest = { showAddLinkDialog = false }, confirmButton = {
             TextButton(onClick = {
                 if (!URLUtil.isNetworkUrl(link)) {
-                    ToastUtils.showShort("非法链接")
+                    ToastUtils.showShort(context.getString(R.string.illegal_link))
                     return@TextButton
                 }
                 if (subItems.any { s -> s.updateUrl == link }) {
-                    ToastUtils.showShort("链接已存在")
+                    ToastUtils.showShort(context.getString(R.string.link_exists))
                     return@TextButton
                 }
                 showAddLinkDialog = false
                 vm.addSubsFromUrl(url = link)
             }) {
-                Text(text = "添加")
+                Text(text = stringResource(R.string.add))
             }
         })
     }
 
     if (showSubsRaw != null) {
         AlertDialog(onDismissRequest = { setShowSubsRaw(null) }, title = {
-            Text(text = "订阅详情")
+            Text(text = stringResource(R.string.subscription_details))
         }, text = {
             Column(
                 verticalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier
             ) {
-                Text(text = "名称: " + showSubsRaw.name)
-                Text(text = "版本: " + showSubsRaw.version)
+                Text(text = stringResource(R.string.name) + showSubsRaw.name)
+                Text(text = stringResource(R.string.version) + showSubsRaw.version)
                 if (showSubsRaw.author != null) {
-                    Text(text = "作者: " + showSubsRaw.author)
+                    Text(text = stringResource(R.string.author) + showSubsRaw.author)
                 }
                 val apps = showSubsRaw.apps
                 val groupsSize = apps.sumOf { it.groups.size }
                 if (groupsSize > 0) {
-                    Text(text = "规则: ${apps.size}应用/${groupsSize}规则组")
+                    Text(text = stringResource(R.string.rule_info, apps.size, groupsSize))
                 }
 
                 Text(
-                    text = "更新: " + formatTimeAgo(
+                    text = stringResource(R.string.update) + formatTimeAgo(
                         subItems.find { s -> s.id == showSubsRaw.id }?.mtime ?: 0
                     )
                 )
@@ -380,7 +389,7 @@ fun SubsManagePage() {
             TextButton(onClick = {
                 setShowSubsRaw(null)
             }) {
-                Text(text = "关闭")
+                Text(text = stringResource(R.string.off))
             }
         })
     }
