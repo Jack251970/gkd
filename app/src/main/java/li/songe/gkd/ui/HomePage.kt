@@ -13,6 +13,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootNavGraph
@@ -58,7 +59,11 @@ fun HomePage() {
             }
         }
     }, content = { padding ->
-        Box(modifier = Modifier.padding(padding)) {
+        Box(
+            Modifier
+                .padding(padding)
+                .padding(start = 10.dp, end = 10.dp)
+        ) {
             when (tab) {
                 subsNav -> SubsManagePage()
                 controlNav -> ControlPage()
