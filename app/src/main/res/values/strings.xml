@@ -20,10 +20,10 @@
     <string name="opensource_address">开源地址：</string>
     <string name="original_opensource_address">源项目</string>
     <string name="forked_opensource_address">克隆项目</string>
-    <string name="version_code">版本代码：</string>
-    <string name="version_name">版本名称：</string>
-    <string name="build_date">构建时间：</string>
-    <string name="build_type">构建类型：</string>
+    <string name="version_code">版本代码：%d</string>
+    <string name="version_name">版本名称：%s</string>
+    <string name="build_date">构建时间：%s</string>
+    <string name="build_type">构建类型：%s</string>
 
     <!-- subscription manage page -->
     <string name="subscription">订阅</string>

@@ -65,13 +65,13 @@ fun AboutPage() {
                 color = MaterialTheme.colorScheme.secondary,
                 style = MaterialTheme.typography.bodySmall)
             Divider()
-            Text(text = stringResource(R.string.version_code) + BuildConfig.VERSION_CODE,
+            Text(text = stringResource(R.string.version_code, BuildConfig.VERSION_CODE),
                 style = MaterialTheme.typography.bodyMedium)
-            Text(text = stringResource(R.string.version_name) + BuildConfig.VERSION_NAME,
+            Text(text = stringResource(R.string.version_name, BuildConfig.VERSION_NAME),
                 style = MaterialTheme.typography.bodyMedium)
-            Text(text = stringResource(R.string.build_date) + BuildConfig.BUILD_DATE,
+            Text(text = stringResource(R.string.build_date, BuildConfig.BUILD_DATE),
                 style = MaterialTheme.typography.bodyMedium)
-            Text(text = stringResource(R.string.build_type) + BuildConfig.BUILD_TYPE,
+            Text(text = stringResource(R.string.build_type, BuildConfig.BUILD_TYPE),
                 style = MaterialTheme.typography.bodyMedium)
             Row {
                 val authors = context.resources.getStringArray(R.array.authors)
