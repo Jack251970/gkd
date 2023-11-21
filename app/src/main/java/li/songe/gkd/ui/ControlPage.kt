@@ -32,6 +32,7 @@ import com.blankj.utilcode.util.ToastUtils
 import kotlinx.coroutines.Dispatchers
 import li.songe.gkd.MainActivity
 import li.songe.gkd.R
+import li.songe.gkd.app
 import li.songe.gkd.appScope
 import li.songe.gkd.service.GkdAbService
 import li.songe.gkd.ui.component.AuthCard
@@ -45,7 +46,9 @@ import li.songe.gkd.util.storeFlow
 import li.songe.gkd.util.updateStorage
 import li.songe.gkd.util.usePollState
 
-val controlNav = BottomNavItem(label = "主页", icon = SafeR.ic_home, route = "control")
+val controlNav = BottomNavItem(
+    label = app.getString(R.string.homepage), icon = SafeR.ic_home, route = "control"
+)
 
 @Composable
 fun ControlPage() {
@@ -101,8 +104,8 @@ fun ControlPage() {
         }
 
         if (!canDrawOverlays) {
-            AuthCard(title = stringResource(R.string.draw_overlays_permission),
-                desc = stringResource(R.string.draw_overlays_permission_desc),
+            AuthCard(title = stringResource(R.string.overlays_permission),
+                desc = stringResource(R.string.overlays_permission_desc),
                 onAuthClick = {
                     val intent = Intent(
                         Settings.ACTION_MANAGE_OVERLAY_PERMISSION,

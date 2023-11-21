@@ -54,6 +54,7 @@ import com.blankj.utilcode.util.ToastUtils
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import li.songe.gkd.R
+import li.songe.gkd.app
 import li.songe.gkd.data.SubsItem
 import li.songe.gkd.data.SubscriptionRaw
 import li.songe.gkd.db.DbSet
@@ -75,7 +76,7 @@ import org.burnoutcrew.reorderable.rememberReorderableLazyListState
 import org.burnoutcrew.reorderable.reorderable
 
 val subsNav = BottomNavItem(
-    label = "订阅", icon = SafeR.ic_link, route = "subscription"
+    label = app.getString(R.string.subscription), icon = SafeR.ic_link, route = "subscription"
 )
 
 
@@ -335,7 +336,7 @@ fun SubsManagePage() {
         }
     }
     if (showAddLinkDialog) {
-        AlertDialog(title = { Text(text = stringResource(R.string.input_subscription_link)) }, text = {
+        AlertDialog(title = { Text(text = stringResource(R.string.enter_subscription_link)) }, text = {
             OutlinedTextField(
                 value = link,
                 onValueChange = { link = it.trim() },

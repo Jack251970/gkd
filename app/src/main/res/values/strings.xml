@@ -3,6 +3,12 @@
     <string name="app_name">GKD</string>
     <string name="yes">是</string>
     <string name="no">否</string>
+    <string name="confirm">确认</string>
+    <string name="cancel">取消</string>
+    <string name="on">开启</string>
+    <string name="off">关闭</string>
+    <string name="enable">启用</string>
+    <string name="disable">禁用</string>
 
     <!-- service -->
     <!-- accessibility -->
@@ -40,7 +46,7 @@
     <string name="import_default_subscription">导入默认订阅</string>
     <string name="import_other_subscription">导入其他订阅</string>
 
-    <string name="input_subscription_link">请输入订阅链接</string>
+    <string name="enter_subscription_link">请输入订阅链接</string>
     <string name="illegal_link">非法链接</string>
     <string name="link_exists">链接已存在</string>
     <string name="add">添加</string>
@@ -50,7 +56,6 @@
     <string name="author">作者：</string>
     <string name="rule_info">规则：%d应用/%d规则组</string>
     <string name="update">更新：</string>
-    <string name="off">关闭</string>
 
     <!-- control page -->
     <string name="homepage">主页</string>
@@ -59,8 +64,8 @@
     <string name="accessibility_permission">无障碍权限</string>
     <string name="accessibility_permission_desc">用于获取屏幕信息，点击屏幕上的控件</string>
     <string name="enable_notification_permission_first">请先启用通知权限</string>
-    <string name="draw_overlays_permission">悬浮窗权限</string>
-    <string name="draw_overlays_permission_desc">用于后台提示，显示保存快照按钮等功能</string>
+    <string name="overlays_permission">悬浮窗权限</string>
+    <string name="overlays_permission_desc">用于后台提示，显示保存快照按钮等功能</string>
     <string name="enable_service">启用服务</string>
     <string name="enable_service_desc">保持服务开启，根据订阅规则匹配屏幕目标节点</string>
     <string name="click_history">点击记录</string>
@@ -69,4 +74,34 @@
 
     <!-- settings page -->
     <string name="settings">设置</string>
+    <string name="hide_background">后台隐藏</string>
+    <string name="hide_background_desc">在最近任务界面中隐藏本应用</string>
+    <string name="accessibility_foreground">无障碍前台</string>
+    <string name="accessibility_foreground_desc">添加前台透明悬浮窗，关闭可能导致不工作</string>
+    <string name="click_notification">点击提示</string>
+    <string name="click_notification_desc">触发点击时提示%s</string>
+    <string name="need_overlays_permission">需要悬浮窗权限</string>
+    <string name="auto_update_subscription">自动更新订阅</string>
+    <string name="auto_update_app">自动更新应用</string>
+    <string name="auto_update_app_desc">打开应用时自动检测是否存在新版本</string>
+    <string name="check_update">检查更新</string>
+    <string name="checking_update">检查更新中</string>
+    <string name="no_update">暂无更新</string>
+    <string name="dark_mode">深色模式</string>
+    <string name="enable_rules">启用规则</string>
+    <string name="save_log">保存日志</string>
+    <string name="save_log_desc">保存最近7天的日志，大概占用您5MB的空间</string>
+    <string name="delete_success">删除成功</string>
+    <string name="share_log">分享日志</string>
+    <string name="no_log">暂无日志</string>
+    <string name="advanced_settings">高级设置</string>
+    <string name="enter_prompt_text">请输入提示文字</string>
+    <string name="invoke_system_sharing">调用系统分享</string>
+    <string name="generate_link">生成链接(需科学上网)</string>
+    <string name="upload_fail">上传失败</string>
+    <string name="uploading_file">上传文件中</string>
+    <string name="terminate_upload">终止上传</string>
+    <string name="upload_success">上传完成</string>
+    <string name="copy">复制</string>
+    <string name="follow_system">跟随系统</string>
 </resources>

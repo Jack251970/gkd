@@ -33,6 +33,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -47,6 +48,8 @@ import com.blankj.utilcode.util.ZipUtils
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import li.songe.gkd.MainActivity
+import li.songe.gkd.R
+import li.songe.gkd.app
 import li.songe.gkd.appScope
 import li.songe.gkd.ui.component.SettingItem
 import li.songe.gkd.ui.component.TextSwitch
@@ -65,7 +68,7 @@ import li.songe.gkd.util.updateStorage
 import java.io.File
 
 val settingsNav = BottomNavItem(
-    label = "设置", icon = SafeR.ic_cog, route = "settings"
+    label = app.getString(R.string.settings), icon = SafeR.ic_cog, route = "settings"
 )
 
 @Composable
@@ -97,12 +100,10 @@ fun SettingsPage() {
 
 
     Column(
-        modifier = Modifier.verticalScroll(
-            state = rememberScrollState()
-        )
+        modifier = Modifier.verticalScroll(state = rememberScrollState())
     ) {
-        TextSwitch(name = "后台隐藏",
-            desc = "在[最近任务]界面中隐藏本应用",
+        TextSwitch(name = stringResource(R.string.hide_background),
+            desc = stringResource(R.string.hide_background_desc),
             checked = store.excludeFromRecents,
             onCheckedChange = {
                 updateStorage(
@@ -113,8 +114,8 @@ fun SettingsPage() {
             })
         Divider()
 
-        TextSwitch(name = "无障碍前台",
-            desc = "添加前台透明悬浮窗,关闭可能导致不工作",
+        TextSwitch(name = stringResource(R.string.accessibility_foreground),
+            desc = stringResource(R.string.accessibility_foreground_desc),
             checked = store.enableAbFloatWindow,
             onCheckedChange = {
                 updateStorage(
@@ -125,8 +126,8 @@ fun SettingsPage() {
             })
         Divider()
 
-        TextSwitch(name = "点击提示",
-            desc = "触发点击时提示:[${store.clickToast}]",
+        TextSwitch(name = stringResource(R.string.click_notification),
+            desc = stringResource(R.string.click_notification_desc, store.clickToast),
             checked = store.toastWhenClick,
             modifier = Modifier.clickable {
                 showToastInputDlg = true
@@ -138,7 +139,7 @@ fun SettingsPage() {
                     )
                 )
                 if (it && !Settings.canDrawOverlays(context)) {
-                    ToastUtils.showShort("需要悬浮窗权限")
+                    ToastUtils.showShort(context.getString(R.string.need_overlays_permission))
                 }
             })
         Divider()
@@ -149,7 +150,9 @@ fun SettingsPage() {
             }
             .padding(10.dp, 15.dp), verticalAlignment = Alignment.CenterVertically) {
             Text(
-                modifier = Modifier.weight(1f), text = "自动更新订阅", fontSize = 18.sp
+                modifier = Modifier.weight(1f),
+                text = stringResource(R.string.auto_update_subscription),
+                fontSize = 18.sp,
             )
             Row(
                 verticalAlignment = Alignment.CenterVertically
@@ -165,8 +168,8 @@ fun SettingsPage() {
         }
         Divider()
 
-        TextSwitch(name = "自动更新应用",
-            desc = "打开应用时自动检测是否存在新版本",
+        TextSwitch(name = stringResource(R.string.auto_update_app),
+            desc = stringResource(R.string.auto_update_app_desc),
             checked = store.autoCheckAppUpdate,
             onCheckedChange = {
                 updateStorage(
@@ -177,12 +180,14 @@ fun SettingsPage() {
             })
         Divider()
 
-        SettingItem(title = if (checkUpdating) "检查更新ing" else "检查更新", onClick = {
-            appScope.launchTry {
+        SettingItem(title = if (checkUpdating)
+            stringResource(R.string.checking_update) else stringResource(R.string.checking_update),
+            onClick = {
+                appScope.launchTry {
                 if (checkUpdatingFlow.value) return@launchTry
                 val newVersion = checkUpdate()
                 if (newVersion == null) {
-                    ToastUtils.showShort("暂无更新")
+                    ToastUtils.showShort(context.getString(R.string.no_update))
                 }
             }
         })
@@ -194,7 +199,7 @@ fun SettingsPage() {
             }
             .padding(10.dp, 15.dp), verticalAlignment = Alignment.CenterVertically) {
             Text(
-                modifier = Modifier.weight(1f), text = "深色模式", fontSize = 18.sp
+                modifier = Modifier.weight(1f), text = stringResource(R.string.dark_mode), fontSize = 18.sp
             )
             Row(
                 verticalAlignment = Alignment.CenterVertically
@@ -215,7 +220,7 @@ fun SettingsPage() {
             }
             .padding(10.dp, 15.dp), verticalAlignment = Alignment.CenterVertically) {
             Text(
-                modifier = Modifier.weight(1f), text = "规则启用", fontSize = 18.sp
+                modifier = Modifier.weight(1f), text = stringResource(R.string.enable_rules), fontSize = 18.sp
             )
             Row(
                 verticalAlignment = Alignment.CenterVertically
@@ -231,8 +236,8 @@ fun SettingsPage() {
         }
         Divider()
 
-        TextSwitch(name = "保存日志",
-            desc = "保存最近7天的日志,大概占用您5M的空间",
+        TextSwitch(name = stringResource(R.string.save_log),
+            desc = stringResource(R.string.save_log_desc),
             checked = store.log2FileSwitch,
             onCheckedChange = {
                 updateStorage(
@@ -247,31 +252,31 @@ fun SettingsPage() {
                             logFiles.forEach { f ->
                                 f.delete()
                             }
-                            ToastUtils.showShort("已删除全部日志")
+                            ToastUtils.showShort(context.getString(R.string.delete_success))
                         }
                     }
                 }
             })
         Divider()
 
-        SettingItem(title = "分享日志", onClick = {
+        SettingItem(title = stringResource(R.string.share_log), onClick = {
             vm.viewModelScope.launchTry(Dispatchers.IO) {
                 val logFiles = LogUtils.getLogFiles()
                 if (logFiles.isNotEmpty()) {
                     showShareLogDlg = true
                 } else {
-                    ToastUtils.showShort("暂无日志")
+                    ToastUtils.showShort(context.getString(R.string.no_log))
                 }
             }
         })
         Divider()
 
-        SettingItem(title = "高级模式", onClick = {
+        SettingItem(title = stringResource(R.string.advanced_settings), onClick = {
             navController.navigate(DebugPageDestination)
         })
         Divider()
 
-        SettingItem(title = "关于", onClick = {
+        SettingItem(title = stringResource(R.string.about) + stringResource(R.string.app_name), onClick = {
             navController.navigate(AboutPageDestination)
         })
 
@@ -403,7 +408,7 @@ fun SettingsPage() {
             mutableStateOf(store.clickToast)
         }
         val maxCharLen = 32
-        AlertDialog(title = { Text(text = "请输入提示文字") }, text = {
+        AlertDialog(title = { Text(text = stringResource(R.string.enter_prompt_text)) }, text = {
             OutlinedTextField(
                 value = value,
                 onValueChange = {
@@ -428,13 +433,13 @@ fun SettingsPage() {
                 showToastInputDlg = false
             }) {
                 Text(
-                    text = "确认", modifier = Modifier
+                    text = stringResource(R.string.confirm), modifier = Modifier
                 )
             }
         }, dismissButton = {
             TextButton(onClick = { showToastInputDlg = false }) {
                 Text(
-                    text = "取消", modifier = Modifier
+                    text = stringResource(R.string.cancel), modifier = Modifier
                 )
             }
         })
@@ -453,7 +458,7 @@ fun SettingsPage() {
                         .fillMaxWidth()
                         .padding(16.dp)
                     Text(
-                        text = "调用系统分享", modifier = Modifier
+                        text = stringResource(R.string.invoke_system_sharing), modifier = Modifier
                             .clickable(onClick = {
                                 showShareLogDlg = false
                                 vm.viewModelScope.launchTry(Dispatchers.IO) {
@@ -471,7 +476,7 @@ fun SettingsPage() {
                                     }
                                     context.startActivity(
                                         Intent.createChooser(
-                                            intent, "分享日志文件"
+                                            intent, context.getString(R.string.share_log)
                                         )
                                     )
                                 }
@@ -479,7 +484,7 @@ fun SettingsPage() {
                             .then(modifier)
                     )
                     Text(
-                        text = "生成链接(需科学上网)", modifier = Modifier
+                        text = stringResource(R.string.generate_link), modifier = Modifier
                             .clickable(onClick = {
                                 showShareLogDlg = false
                                 vm.viewModelScope.launchTry(Dispatchers.IO) {
@@ -498,7 +503,7 @@ fun SettingsPage() {
     when (val uploadStatusVal = uploadStatus) {
         is LoadStatus.Failure -> {
             AlertDialog(
-                title = { Text(text = "上传失败") },
+                title = { Text(text = stringResource(R.string.upload_fail)) },
                 text = {
                     Text(text = uploadStatusVal.exception.let {
                         it.message ?: it.toString()
@@ -509,7 +514,7 @@ fun SettingsPage() {
                     TextButton(onClick = {
                         vm.uploadStatusFlow.value = null
                     }) {
-                        Text(text = "关闭")
+                        Text(text = stringResource(R.string.off))
                     }
                 },
             )
@@ -517,38 +522,38 @@ fun SettingsPage() {
 
         is LoadStatus.Loading -> {
             AlertDialog(
-                title = { Text(text = "上传文件中") },
+                title = { Text(text = stringResource(R.string.uploading_file)) },
                 text = {
                     LinearProgressIndicator(progress = uploadStatusVal.progress)
                 },
                 onDismissRequest = { },
                 confirmButton = {
                     TextButton(onClick = {
-                        vm.uploadJob?.cancel(CancellationException("终止上传"))
+                        vm.uploadJob?.cancel(CancellationException(context.getString(R.string.terminate_upload)))
                         vm.uploadJob = null
                     }) {
-                        Text(text = "终止上传")
+                        Text(text = stringResource(R.string.terminate_upload))
                     }
                 },
             )
         }
 
         is LoadStatus.Success -> {
-            AlertDialog(title = { Text(text = "上传完成") }, text = {
+            AlertDialog(title = { Text(text = stringResource(R.string.upload_success)) }, text = {
                 Text(text = uploadStatusVal.result.href)
             }, onDismissRequest = {}, dismissButton = {
                 TextButton(onClick = {
                     vm.uploadStatusFlow.value = null
                 }) {
-                    Text(text = "关闭")
+                    Text(text = stringResource(R.string.off))
                 }
             }, confirmButton = {
                 TextButton(onClick = {
                     ClipboardUtils.copyText(uploadStatusVal.result.href)
-                    ToastUtils.showShort("复制成功")
+                    ToastUtils.showShort(context.getString(R.string.copy_success))
                     vm.uploadStatusFlow.value = null
                 }) {
-                    Text(text = "复制")
+                    Text(text = stringResource(R.string.copy))
                 }
             })
         }
@@ -568,7 +573,7 @@ private val updateTimeRadioOptions = listOf(
 private val darkThemeRadioOptions = listOf(
     "跟随系统" to null,
     "启用" to true,
-    "关闭" to false,
+    "禁用" to false,
 )
 private val enableGroupRadioOptions = listOf(
     "跟随订阅" to null,
