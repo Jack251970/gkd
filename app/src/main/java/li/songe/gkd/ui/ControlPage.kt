@@ -45,7 +45,7 @@ import li.songe.gkd.util.storeFlow
 import li.songe.gkd.util.updateStorage
 import li.songe.gkd.util.usePollState
 
-val controlNav = BottomNavItem(label = "主页", icon = SafeR.ic_home, route = "settings")
+val controlNav = BottomNavItem(label = "主页", icon = SafeR.ic_home, route = "control")
 
 @Composable
 fun ControlPage() {
