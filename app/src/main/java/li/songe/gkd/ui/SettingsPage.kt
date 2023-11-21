@@ -181,7 +181,7 @@ fun SettingsPage() {
         Divider()
 
         SettingItem(title = if (checkUpdating)
-            stringResource(R.string.checking_update) else stringResource(R.string.checking_update),
+            stringResource(R.string.checking_update) else stringResource(R.string.check_update),
             onClick = {
                 appScope.launchTry {
                 if (checkUpdatingFlow.value) return@launchTry
@@ -562,21 +562,9 @@ fun SettingsPage() {
     }
 }
 
-private val updateTimeRadioOptions = listOf(
-    "暂停" to -1L,
-    "每小时" to 60 * 60_000L,
-    "每6小时" to 6 * 60 * 60_000L,
-    "每12小时" to 12 * 60 * 60_000L,
-    "每天" to 24 * 60 * 60_000L
-)
-
-private val darkThemeRadioOptions = listOf(
-    "跟随系统" to null,
-    "启用" to true,
-    "禁用" to false,
-)
-private val enableGroupRadioOptions = listOf(
-    "跟随订阅" to null,
-    "默认启用" to true,
-    "默认关闭" to false,
-)
+val updateTimeRadioOptions = app.resources.getStringArray(R.array.update_time_options)
+    .zip(listOf(-1L, 60 * 60_000L, 6 * 60 * 60_000L, 12 * 60 * 60_000L, 24 * 60 * 60_000L))
+val darkThemeRadioOptions = app.resources.getStringArray(R.array.dark_theme_options)
+    .zip(listOf(null, true, false))
+val enableGroupRadioOptions = app.resources.getStringArray(R.array.enable_group_options)
+    .zip(listOf(null, true, false))

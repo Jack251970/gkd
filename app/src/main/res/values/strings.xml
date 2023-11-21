@@ -97,7 +97,7 @@
     <string name="advanced_settings">高级设置</string>
     <string name="enter_prompt_text">请输入提示文字</string>
     <string name="invoke_system_sharing">调用系统分享</string>
-    <string name="generate_link">生成链接(需科学上网)</string>
+    <string name="generate_link">生成链接（需科学上网）</string>
     <string name="upload_fail">上传失败</string>
     <string name="uploading_file">上传文件中</string>
     <string name="terminate_upload">终止上传</string>

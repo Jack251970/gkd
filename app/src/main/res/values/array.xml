@@ -5,4 +5,24 @@
         <item>lliioollcn</item>
         <item>Jack251970</item>
     </string-array>
+
+    <string-array name="update_time_options">
+        <item>暂停</item>
+        <item>每小时</item>
+        <item>每6小时</item>
+        <item>每12小时</item>
+        <item>每天</item>
+    </string-array>
+
+    <string-array name="dark_theme_options">
+        <item>跟随系统</item>
+        <item>启用</item>
+        <item>禁用</item>
+    </string-array>
+
+    <string-array name="enable_group_options">
+        <item>跟随订阅</item>
+        <item>默认启用</item>
+        <item>默认关闭</item>
+    </string-array>
 </resources>
