@@ -28,7 +28,7 @@ dependencyResolutionManagement {
 
     versionCatalogs {
         create("libs") {
-            val kotlinVersion = "1.9.10"
+            val kotlinVersion = "1.9.20"
             // use jdk17
             version("jdkVersion", JavaVersion.VERSION_17.majorVersion)
             version("kotlinVersion", kotlinVersion)
@@ -38,18 +38,16 @@ dependencyResolutionManagement {
             version("android.buildToolsVersion", "34.0.0")
             version("android.minSdk", "26")
 
-            library("android.gradle", "com.android.tools.build:gradle:8.1.2")
-            plugin("android.library", "com.android.library").version("8.1.2")
-            plugin("android.application", "com.android.application").version("8.1.2")
+            library("android.gradle", "com.android.tools.build:gradle:8.1.4")
+            plugin("android.library", "com.android.library").version("8.1.4")
+            plugin("android.application", "com.android.application").version("8.1.4")
 
             // 当前 android 项目 kotlin 的版本
             library(
-                "kotlin.gradle.plugin",
-                "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinVersion"
+                "kotlin.gradle.plugin", "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinVersion"
             )
             library(
-                "kotlin.serialization",
-                "org.jetbrains.kotlin:kotlin-serialization:$kotlinVersion"
+                "kotlin.serialization", "org.jetbrains.kotlin:kotlin-serialization:$kotlinVersion"
             )
             library(
                 "kotlin.stdlib.common", "org.jetbrains.kotlin:kotlin-stdlib-common:$kotlinVersion"
@@ -68,7 +66,7 @@ dependencyResolutionManagement {
 
             // compose 编译器的版本, 需要注意它与 compose 的版本没有关联
             // https://mvnrepository.com/artifact/androidx.compose.compiler/compiler
-            version("compose.compilerVersion", "1.5.3")
+            version("compose.compilerVersion", "1.5.4")
             val composeVersion = "1.5.4"
             library("compose.ui", "androidx.compose.ui:ui:$composeVersion")
             library("compose.preview", "androidx.compose.ui:ui-tooling-preview:$composeVersion")
@@ -78,7 +76,7 @@ dependencyResolutionManagement {
             library("compose.activity", "androidx.activity:activity-compose:1.8.1")
 
             // https://github.com/Tencent/MMKV/blob/master/README_CN.md
-            library("tencent.mmkv", "com.tencent:mmkv:1.3.1")
+            library("tencent.mmkv", "com.tencent:mmkv:1.3.2")
             // https://bugly.qq.com/docs/user-guide/instruction-manual-android/
             library("tencent.bugly", "com.tencent.bugly:crashreport:4.1.9.3")
 
@@ -141,10 +139,10 @@ dependencyResolutionManagement {
 
             library("junit", "junit:junit:4.13.2")
 
-            val ktorVersion = "2.3.5"
+            val ktorVersion = "2.3.6"
             // 请注意,当 client 和 server 版本不一致时, 会报错 socket hang up
             library("ktor.server.core", "io.ktor:ktor-server-core:$ktorVersion")
-            library("ktor.server.netty", "io.ktor:ktor-server-netty:$ktorVersion")
+            library("ktor.server.cio", "io.ktor:ktor-server-cio:$ktorVersion")
             library("ktor.server.cors", "io.ktor:ktor-server-cors:$ktorVersion")
             library(
                 "ktor.server.content.negotiation", "io.ktor:ktor-server-content-negotiation:$ktorVersion"
@@ -161,7 +159,7 @@ dependencyResolutionManagement {
 
             library(
                 "kotlinx.serialization.json",
-                "org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.0"
+                "org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.1"
             )
 
             // https://github.com/Kotlin/kotlinx.collections.immutable
@@ -173,7 +171,7 @@ dependencyResolutionManagement {
 //            https://developer.android.com/reference/kotlin/org/json/package-summary
             library("org.json", "org.json:json:20210307")
 
-            plugin("google.ksp", "com.google.devtools.ksp").version("1.9.10-1.0.13")
+            plugin("google.ksp", "com.google.devtools.ksp").version("1.9.20-1.0.14")
 
             plugin("google.hilt", "com.google.dagger.hilt.android").version("2.48.1")
             library("google.hilt.android", "com.google.dagger:hilt-android:2.48.1")
@@ -182,14 +180,14 @@ dependencyResolutionManagement {
                 "com.google.dagger:hilt-android-compiler:2.48.1"
             )
             library(
-                "androidx.hilt.navigation.compose", "androidx.hilt:hilt-navigation-compose:1.0.0"
+                "androidx.hilt.navigation.compose", "androidx.hilt:hilt-navigation-compose:1.1.0"
             )
 
 //            https://github.com/raamcosta/compose-destinations
             library(
-                "destinations.core", "io.github.raamcosta.compose-destinations:core:1.9.54"
+                "destinations.core", "io.github.raamcosta.compose-destinations:core:1.9.55"
             )
-            library("destinations.ksp", "io.github.raamcosta.compose-destinations:ksp:1.9.54")
+            library("destinations.ksp", "io.github.raamcosta.compose-destinations:ksp:1.9.55")
 
             library("coil.compose", "io.coil-kt:coil-compose:2.5.0")
             library("coil.gif", "io.coil-kt:coil-gif:2.5.0")

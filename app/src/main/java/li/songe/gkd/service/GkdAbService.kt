@@ -98,6 +98,7 @@ class GkdAbService : CompositionAbService({
     var lastContentEventTime = 0L
     var job: Job? = null
     val singleThread = Dispatchers.IO.limitedParallelism(1)
+    val eventThread = Dispatchers.IO.limitedParallelism(1)
     onDestroy {
         singleThread.cancel()
     }
@@ -148,70 +149,80 @@ class GkdAbService : CompositionAbService({
         if (!(event.eventType == AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED || event.eventType == AccessibilityEvent.TYPE_WINDOW_CONTENT_CHANGED)) return@onAccessibilityEvent
 
         if (event.eventType == AccessibilityEvent.TYPE_WINDOW_CONTENT_CHANGED) {
-            if (event.eventTime - appChangeTime > 5_000) {
+            if (event.eventTime - appChangeTime > 5_000) { // app 启动 5s 内关闭限制
                 if (event.eventTime - lastContentEventTime < 100) {
-                    return@onAccessibilityEvent
+                    if (event.eventTime - (lastTriggerRule?.actionTriggerTime?.value
+                            ?: 0) > 1000
+                    ) { // 规则刚刚触发后 1s 内关闭限制
+                        return@onAccessibilityEvent
+                    }
                 }
             }
             lastContentEventTime = event.eventTime
         }
-        val evAppId = event.packageName?.toString() ?: return@onAccessibilityEvent
-        val evActivityId = event.className?.toString() ?: return@onAccessibilityEvent
-        val rightAppId = safeActiveWindow?.packageName?.toString() ?: return@onAccessibilityEvent
 
-        if (rightAppId == evAppId) {
-            if (event.eventType == AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED) {
-                // tv.danmaku.bili, com.miui.home, com.miui.home.launcher.Launcher
-                if (isActivity(evAppId, evActivityId)) {
-                    topActivityFlow.value = TopActivity(
-                        evAppId, evActivityId
-                    )
-                    activityChangeTime = System.currentTimeMillis()
-                }
-            } else {
-                if (event.eventTime - lastTriggerShizukuTime > 300) {
-                    val shizukuTop = getShizukuTopActivity()
-                    if (shizukuTop != null && shizukuTop.appId == rightAppId) {
-                        if (shizukuTop.activityId == evActivityId) {
-                            activityChangeTime = System.currentTimeMillis()
-                        }
-                        topActivityFlow.value = shizukuTop
+        // AccessibilityEvent 的 clear 方法会在后续时间被系统调用导致内部数据丢失
+        // 因此不要在协程/子线程内传递引用, 此处使用 data class 保存数据
+        val fixedEvent = event.toAbEvent() ?: return@onAccessibilityEvent
+        val evAppId = fixedEvent.packageName
+        val evActivityId = fixedEvent.className
+
+        scope.launch(eventThread) {
+            val rightAppId = safeActiveWindow?.packageName?.toString() ?: return@launch
+            if (rightAppId == evAppId) {
+                if (fixedEvent.eventType == AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED) {
+                    // tv.danmaku.bili, com.miui.home, com.miui.home.launcher.Launcher
+                    if (isActivity(evAppId, evActivityId)) {
+                        topActivityFlow.value = TopActivity(
+                            evAppId, evActivityId
+                        )
+                        activityChangeTime = System.currentTimeMillis()
                     }
-                    lastTriggerShizukuTime = event.eventTime
+                } else {
+                    if (fixedEvent.eventTime - lastTriggerShizukuTime > 300) {
+                        val shizukuTop = getShizukuTopActivity()
+                        if (shizukuTop != null && shizukuTop.appId == rightAppId) {
+                            if (shizukuTop.activityId == evActivityId) {
+                                activityChangeTime = System.currentTimeMillis()
+                            }
+                            topActivityFlow.value = shizukuTop
+                        }
+                        lastTriggerShizukuTime = fixedEvent.eventTime
+                    }
                 }
             }
-        }
-
-        if (rightAppId != topActivityFlow.value?.appId) {
-            // 从 锁屏,下拉通知栏 返回等情况, 应用不会发送事件, 但是系统组件会发送事件
-            val shizukuTop = getShizukuTopActivity()
-            if (shizukuTop?.appId == rightAppId) {
-                topActivityFlow.value = shizukuTop
-            } else {
-                topActivityFlow.value = TopActivity(rightAppId)
+            if (rightAppId != topActivityFlow.value?.appId) {
+                // 从 锁屏,下拉通知栏 返回等情况, 应用不会发送事件, 但是系统组件会发送事件
+                val shizukuTop = getShizukuTopActivity()
+                if (shizukuTop?.appId == rightAppId) {
+                    topActivityFlow.value = shizukuTop
+                } else {
+                    topActivityFlow.value = TopActivity(rightAppId)
+                }
             }
-        }
 
-        if (getCurrentRules().rules.isEmpty()) {
-            return@onAccessibilityEvent
-        }
-
-        if (evAppId != rightAppId) {
-            return@onAccessibilityEvent
-        }
-        if (!storeFlow.value.enableService) return@onAccessibilityEvent
-        val jobVal = job
-        if (jobVal?.isActive == true) {
-            if (openAdOptimized == true) {
-                jobVal.cancel()
-            } else {
-                return@onAccessibilityEvent
+            if (evAppId != rightAppId) {
+                return@launch
             }
+
+            if (getCurrentRules().rules.isEmpty()) {
+                return@launch
+            }
+
+            if (!storeFlow.value.enableService) return@launch
+            val jobVal = job
+            if (jobVal?.isActive == true) {
+                if (openAdOptimized == true) {
+                    jobVal.cancel()
+                } else {
+                    return@launch
+                }
+            }
+
+            lastQueryTimeFlow.value = fixedEvent.eventTime
+
+            newQueryTask()
         }
-
-        lastQueryTimeFlow.value = event.eventTime
-
-        newQueryTask()
     }
 
 
@@ -244,6 +255,7 @@ class GkdAbService : CompositionAbService({
                     LogUtils.d("更新磁盘订阅文件:${newSubsRaw.name}")
                 } catch (e: Exception) {
                     e.printStackTrace()
+                    LogUtils.d("更新失败", e)
                 }
             }
             lastUpdateSubsTime = System.currentTimeMillis()
