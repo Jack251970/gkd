@@ -62,7 +62,7 @@ fun HomePage() {
         Box(
             Modifier
                 .padding(padding)
-                .padding(start = 10.dp, end = 10.dp)
+                .padding(start = 6.dp, end = 6.dp)
         ) {
             when (tab) {
                 subsNav -> SubsManagePage()
