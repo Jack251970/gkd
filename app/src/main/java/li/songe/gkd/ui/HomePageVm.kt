@@ -78,7 +78,7 @@ class HomePageVm @Inject constructor() : ViewModel() {
             }
         }
 
-        if (storeFlow.value.autoCheckAppUpdate) {
+        /*if (storeFlow.value.autoCheckAppUpdate) {
             appScope.launch {
                 try {
                     checkUpdate()
@@ -86,7 +86,7 @@ class HomePageVm @Inject constructor() : ViewModel() {
                     e.printStackTrace()
                 }
             }
-        }
+        }*/
 
         viewModelScope.launchTry(Dispatchers.IO) {
             // 在某些机型由于未知原因创建失败

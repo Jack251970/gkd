@@ -168,7 +168,7 @@ fun SettingsPage() {
         }
         Divider()
 
-        TextSwitch(name = stringResource(R.string.auto_update_app),
+        /*TextSwitch(name = stringResource(R.string.auto_update_app),
             desc = stringResource(R.string.auto_update_app_desc),
             checked = store.autoCheckAppUpdate,
             onCheckedChange = {
@@ -191,7 +191,7 @@ fun SettingsPage() {
                 }
             }
         })
-        Divider()
+        Divider()*/
 
         Row(modifier = Modifier
             .clickable {
