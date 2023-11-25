@@ -217,7 +217,7 @@ data class NewVersionAsset(
 val checkUpdatingFlow by lazy { MutableStateFlow(false) }
 val newVersionFlow by lazy { MutableStateFlow<NewVersionAsset?>(null) }
 val downloadStatusFlow by lazy { MutableStateFlow<LoadStatus<String>?>(null) }
-suspend fun checkUpdate(): GithubNewVersion? {
+suspend fun checkUpdate(): NewVersionAsset? {
     if (checkUpdatingFlow.value) return null
     checkUpdatingFlow.value = true
     try {
@@ -225,17 +225,18 @@ suspend fun checkUpdate(): GithubNewVersion? {
         val versionName = githubNewVersion.tagName.substring(1)
         if (compareVersions(versionName, BuildConfig.VERSION_NAME) > 0) {
             if (githubNewVersion.assets.isNotEmpty()) {
-                val newVersionAsset = githubNewVersion.assets.find { it.name.startsWith("gkd") }
-                if (newVersionAsset != null) {
+                val akpAsset = githubNewVersion.assets.find { it.name.startsWith("gkd") }
+                if (akpAsset != null) {
                     val newVersion = client.get(UPDATE_URL).body<NewVersion>()
-                    newVersionFlow.value = NewVersionAsset(
+                    val newVersionAsset = NewVersionAsset(
                         versionName = versionName,
-                        downloadUrl = newVersionAsset.browserDownloadUrl,
+                        downloadUrl = akpAsset.browserDownloadUrl,
                         versionLogs = newVersion.versionLogs
                             .takeWhile { v -> compareVersions(v.name, BuildConfig.VERSION_NAME) > 0 },
-                        fileSize = newVersionAsset.size.toLong(),
+                        fileSize = akpAsset.size.toLong(),
                     )
-                    return githubNewVersion
+                    newVersionFlow.value = newVersionAsset
+                    return newVersionAsset
                 }
                 else
                 {
