@@ -63,7 +63,18 @@ data class NewVersion(
     @SerialName("zipball_url")
     val zipballUrl: String,
     val body: String,
-    val reactions: Reactions
+    val reactions: Reactions = Reactions(
+        url = "",
+        totalCount = 0,
+        plusOne = 0,
+        minusOne = 0,
+        laugh = 0,
+        hooray = 0,
+        confused = 0,
+        heart = 0,
+        rocket = 0,
+        eyes = 0
+    )
 )
 
 @Serializable
