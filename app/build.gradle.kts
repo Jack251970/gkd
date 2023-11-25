@@ -23,8 +23,8 @@ android {
         targetSdk = libs.versions.android.targetSdk.get().toInt()
 
         applicationId = "li.songe.gkd"
-        versionCode = 13
-        versionName = "1.5.3"
+        versionCode = 14
+        versionName = "1.5.4"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
@@ -90,6 +90,7 @@ android {
     kotlinOptions {
         jvmTarget = JavaVersion.VERSION_17.majorVersion
         freeCompilerArgs += "-opt-in=kotlin.RequiresOptIn"
+        freeCompilerArgs += "-opt-in=kotlinx.coroutines.FlowPreview"
         freeCompilerArgs += "-opt-in=androidx.compose.material3.ExperimentalMaterial3Api"
         freeCompilerArgs += "-opt-in=androidx.compose.foundation.ExperimentalFoundationApi"
     }
