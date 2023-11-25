@@ -103,4 +103,13 @@
     <string name="upload_success">上传完成</string>
     <string name="copy">复制</string>
     <string name="follow_system">跟随系统</string>
+
+    <!-- upgrade dialog -->
+    <string name="detect_new_version">检测到新版本</string>
+    <string name="download_new_version">下载更新</string>
+    <string name="downloading_new_version">下载更新中</string>
+    <string name="stop_download">终止下载</string>
+    <string name="download_success">下载完成</string>
+    <string name="download_fail">下载失败</string>
+    <string name="install">安装</string>
 </resources>

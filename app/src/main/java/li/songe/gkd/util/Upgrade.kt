@@ -13,6 +13,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.blankj.utilcode.util.AppUtils
 import io.ktor.client.call.body
@@ -28,6 +29,7 @@ import kotlinx.coroutines.launch
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import li.songe.gkd.BuildConfig
+import li.songe.gkd.R
 import li.songe.gkd.appScope
 import java.io.File
 
@@ -41,7 +43,6 @@ data class NewVersion(
     @SerialName("html_url")
     val htmlUrl: String,
     val id: Int,
-    @Transient
     val author: Author,
     @SerialName("node_id")
     val nodeId: String,
@@ -300,7 +301,7 @@ fun UpgradeDialog() {
     newVersion?.let { newVersionVal ->
 
         AlertDialog(title = {
-            Text(text = "检测到新版本")
+            Text(text = stringResource(R.string.detect_new_version))
         }, text = {
             Text(text = "v${BuildConfig.VERSION_NAME} -> v${newVersionVal.versionName}\n\n${
                 if (newVersionVal.versionLogs.size > 1) {
@@ -321,11 +322,11 @@ fun UpgradeDialog() {
                 newVersionFlow.value = null
                 startDownload(newVersionVal)
             }) {
-                Text(text = "下载更新")
+                Text(text = stringResource(R.string.download_new_version))
             }
         }, dismissButton = {
             TextButton(onClick = { newVersionFlow.value = null }) {
-                Text(text = "取消")
+                Text(text = stringResource(R.string.cancel))
             }
         })
     }
@@ -335,7 +336,7 @@ fun UpgradeDialog() {
         when (downloadStatusVal) {
             is LoadStatus.Loading -> {
                 AlertDialog(
-                    title = { Text(text = "下载新版本中") },
+                    title = { Text(text = stringResource(R.string.downloading_new_version)) },
                     text = {
                         LinearProgressIndicator(progress = downloadStatusVal.progress)
                     },
@@ -346,7 +347,7 @@ fun UpgradeDialog() {
                                 Exception("终止下载")
                             )
                         }) {
-                            Text(text = "终止下载")
+                            Text(text = stringResource(R.string.stop_download))
                         }
                     },
                 )
@@ -354,7 +355,7 @@ fun UpgradeDialog() {
 
             is LoadStatus.Failure -> {
                 AlertDialog(
-                    title = { Text(text = "新版本下载失败") },
+                    title = { Text(text = stringResource(R.string.download_fail)) },
                     text = {
                         Text(text = downloadStatusVal.exception.let {
                             it.message ?: it.toString()
@@ -365,27 +366,27 @@ fun UpgradeDialog() {
                         TextButton(onClick = {
                             downloadStatusFlow.value = null
                         }) {
-                            Text(text = "关闭")
+                            Text(text = stringResource(R.string.off))
                         }
                     },
                 )
             }
 
             is LoadStatus.Success -> {
-                AlertDialog(title = { Text(text = "新版本下载完毕") },
+                AlertDialog(title = { Text(text = stringResource(R.string.download_success)) },
                     onDismissRequest = {},
                     dismissButton = {
                         TextButton(onClick = {
                             downloadStatusFlow.value = null
                         }) {
-                            Text(text = "关闭")
+                            Text(text = stringResource(R.string.off))
                         }
                     },
                     confirmButton = {
                         TextButton(onClick = {
                             AppUtils.installApp(downloadStatusVal.result)
                         }) {
-                            Text(text = "安装")
+                            Text(text = stringResource(R.string.install))
                         }
                     })
             }

@@ -7,7 +7,7 @@ const val IMPORT_BASE_URL = "https://i.gkd.li/import/"
 
 const val DEFAULT_SUBS_UPDATE_URL =
     "https://registry.npmmirror.com/@gkd-kit/subscription/latest/files"
-const val UPDATE_URL = "https://registry.npmmirror.com/@gkd-kit/app/latest/files/index.json"
+// const val UPDATE_URL = "https://registry.npmmirror.com/@gkd-kit/app/latest/files/index.json"
 const val FORKED_UPDATE_URL = "https://api.github.com/repos/Jack251970/gkd/releases/latest"
 
 const val REPOSITORY_URL = "https://github.com/gkd-kit/gkd"
