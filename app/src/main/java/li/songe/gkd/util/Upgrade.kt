@@ -35,6 +35,23 @@ import java.io.File
 
 @Serializable
 data class NewVersion(
+    val versionCode: Int,
+    val versionName: String,
+    val changelog: String,
+    val downloadUrl: String,
+    val versionLogs: List<VersionLog> = emptyList(),
+    val fileSize: Long? = null,
+)
+
+@Serializable
+data class VersionLog(
+    val name: String,
+    val code: Int,
+    val desc: String,
+)
+
+@Serializable
+data class GithubNewVersion(
     val url: String,
     @SerialName("assets_url")
     val assetsUrl: String,
@@ -192,47 +209,37 @@ data class Reactions(
 data class NewVersionAsset(
     // val versionCode: Int,
     val versionName: String,
-    val changelog: String,
     val downloadUrl: String,
     val versionLogs: List<VersionLog> = emptyList(),
     val fileSize: Long? = null,
 )
 
-data class VersionLog(
-    val name: String,
-    // val code: Int,
-    val desc: String,
-)
-
 val checkUpdatingFlow by lazy { MutableStateFlow(false) }
 val newVersionFlow by lazy { MutableStateFlow<NewVersionAsset?>(null) }
 val downloadStatusFlow by lazy { MutableStateFlow<LoadStatus<String>?>(null) }
-suspend fun checkUpdate(): NewVersion? {
+suspend fun checkUpdate(): GithubNewVersion? {
     if (checkUpdatingFlow.value) return null
     checkUpdatingFlow.value = true
     try {
-        val newVersion = client.get(FORKED_UPDATE_URL).body<NewVersion>()
-        val versionName = newVersion.tagName.substring(1)
+        val githubNewVersion = client.get(FORKED_UPDATE_URL).body<GithubNewVersion>()
+        val versionName = githubNewVersion.tagName.substring(1)
         if (compareVersions(versionName, BuildConfig.VERSION_NAME) > 0) {
-            if (newVersion.assets.isNotEmpty()) {
-                val newVersionAsset = newVersion.assets.find { it.name.startsWith("gkd") }
+            if (githubNewVersion.assets.isNotEmpty()) {
+                val newVersionAsset = githubNewVersion.assets.find { it.name.startsWith("gkd") }
                 if (newVersionAsset != null) {
-                    val versionLog = VersionLog(
-                        name = versionName,
-                        desc = newVersion.body,
-                    )
+                    val newVersion = client.get(UPDATE_URL).body<NewVersion>()
                     newVersionFlow.value = NewVersionAsset(
                         versionName = versionName,
-                        changelog = newVersion.body,
                         downloadUrl = newVersionAsset.browserDownloadUrl,
-                        versionLogs = listOf(versionLog),
+                        versionLogs = newVersion.versionLogs
+                            .takeWhile { v -> compareVersions(v.name, BuildConfig.VERSION_NAME) > 0 },
                         fileSize = newVersionAsset.size.toLong(),
                     )
-                    return newVersion
+                    return githubNewVersion
                 }
                 else
                 {
-                    Log.d("Upgrade", "Found new version but no gkd assets")
+                    Log.d("Upgrade", "Found new version but no apk")
                 }
             }
             else
