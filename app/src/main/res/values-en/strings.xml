@@ -155,6 +155,8 @@
 
     <!-- subscription page -->
     <string name="enter_app_name">Enter App Name</string>
+    <string name="local_subscription">Local Subscription</string>
+    <string name="default_subscription">Default Subscription</string>
     <string name="no_search_result">No Search Results</string>
     <string name="subscription_no_rules">This subscription has no rules yet</string>
     <string name="add_app_rule">Add App Rule</string>
@@ -186,9 +188,6 @@
     <string name="add_fail_inconsistent_id">Add Failed, inconsistent IDs</string>
     <string name="add_fail_blank_rule_group">Add Failed, empty rule group</string>
 
-    <!-- homepage vm -->
-    <string name="local_subscription">Local Subscription</string>
-
     <!-- control vm -->
     <string name="app_rule_group_count">%d apps/%d rule groups</string>
     <string name="no_rules">No Rules Yet</string>
@@ -211,7 +210,7 @@
     <string name="no_local_subscription_file_refresh_page">No local subscription file, please refresh the page</string>
 
     <!-- authorization card -->
-    <string name="authorization">AuthZ</string>
+    <string name="authorization">Auth</string>
 
     <!-- time ext -->
     <string name="time_ago_year">%d years ago</string>

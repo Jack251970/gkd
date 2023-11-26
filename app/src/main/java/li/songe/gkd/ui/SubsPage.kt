@@ -134,7 +134,16 @@ fun SubsPage(
                         modifier = Modifier.focusRequester(focusRequester)
                     )
                 } else {
-                    Text(text = subsRaw?.name ?: subsItem?.id.toString())
+                    var name = subsRaw?.name ?: subsItem?.id.toString()
+                    when (name) {
+                        "本地订阅" -> {
+                            name = stringResource(R.string.local_subscription)
+                        }
+                        "默认订阅" -> {
+                            name = stringResource(R.string.default_subscription)
+                        }
+                    }
+                    Text(text = name)
                 }
             }, actions = {
                 if (showSearchBar) {

@@ -16,8 +16,6 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.serialization.encodeToString
-import li.songe.gkd.R
-import li.songe.gkd.app
 import li.songe.gkd.appScope
 import li.songe.gkd.data.GithubPoliciesAsset
 import li.songe.gkd.data.RpcError
@@ -54,7 +52,7 @@ class HomePageVm @Inject constructor() : ViewModel() {
                     json.encodeToString(
                         SubscriptionRaw(
                             id = localSubsItem.id,
-                            name = app.getString(R.string.local_subscription),
+                            name = "本地订阅",
                             version = 0,
                             author = "gkd",
                         )

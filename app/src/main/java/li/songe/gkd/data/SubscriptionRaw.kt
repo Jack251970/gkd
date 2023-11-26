@@ -12,7 +12,7 @@ import li.songe.selector.Selector
 @Serializable
 data class SubscriptionRaw(
     val id: Long,
-    val name: String,
+    var name: String,
     val version: Int,
     val author: String? = null,
     val updateUrl: String? = null,

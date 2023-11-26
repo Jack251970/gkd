@@ -159,6 +159,8 @@
 
     <!-- subscription page -->
     <string name="enter_app_name">请输入应用名称</string>
+    <string name="local_subscription">本地订阅</string>
+    <string name="default_subscription">默认订阅</string>
     <string name="no_search_result">暂无搜索结果</string>
     <string name="subscription_no_rules">此订阅暂无规则</string>
     <string name="add_app_rule">添加APP规则</string>
@@ -189,9 +191,6 @@
     <string name="enter_rule_group_either_app_rule_or_single_rule_group">请输入规则组\n可以是APP规则\n也可以是单个规则组</string>
     <string name="add_fail_inconsistent_id">添加失败，id不一致</string>
     <string name="add_fail_blank_rule_group">添加失败，空规则组</string>
-
-    <!-- homepage vm -->
-    <string name="local_subscription">本地订阅</string>
 
     <!-- control vm -->
     <string name="app_rule_group_count">%d应用/%d规则组</string>

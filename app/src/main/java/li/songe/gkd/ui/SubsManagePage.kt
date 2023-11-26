@@ -178,9 +178,20 @@ fun SubsManagePage() {
                                     },
                                 shape = RoundedCornerShape(8.dp),
                             ) {
+                                val subsRaw = subsIdToRaw[subItem.id]
+                                var name = subsRaw?.name ?: subItem.id.toString()
+                                when (name) {
+                                    "本地订阅" -> {
+                                        name = stringResource(R.string.local_subscription)
+                                    }
+                                    "默认订阅" -> {
+                                        name = stringResource(R.string.default_subscription)
+                                    }
+                                }
+                                subsRaw?.name = name
                                 SubsItemCard(
                                     subsItem = subItem,
-                                    subscriptionRaw = subsIdToRaw[subItem.id],
+                                    subscriptionRaw = subsRaw,
                                     index = index + 1,
                                     onMenuClick = {
                                         menuSubItem = subItem
