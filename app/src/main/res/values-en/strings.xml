@@ -17,13 +17,13 @@
 
     <!-- about page -->
     <string name="about">About</string>
-    <string name="app_desc">A custom screen-clicking software based on Accessibility + Advanced Selector + Subscription Rules.</string>
+    <string name="app_desc">A custom screen-clicking software based on accessibility, advanced selector and subscription rules.</string>
     <string name="app_desc_appendix">Note: This version is a clone, customized and optimized based on the source project.</string>
     <string name="and_divider">,&#160;</string>
     <string name="project_author">Project Author:&#160;</string>
-    <string name="opensource_address">Open Source Address:&#160;</string>
+    <string name="opensource_address">Open-Source Address:&#160;</string>
     <string name="original_opensource_address">Source Project</string>
-    <string name="forked_opensource_address">Cloned Project</string>
+    <string name="forked_opensource_address">Forked Project</string>
     <string name="version_code">Version Code: %d</string>
     <string name="version_name">Version Name: %s</string>
     <string name="build_date">Build Date: %s</string>
@@ -55,14 +55,14 @@
     <!-- control page -->
     <string name="homepage">Homepage</string>
     <string name="notification_permission">Notification Permission</string>
-    <string name="notification_permission_desc">Used to start background service and display service running status.</string>
+    <string name="notification_permission_desc">Start background service and display running status.</string>
     <string name="accessibility_permission">Accessibility Permission</string>
-    <string name="accessibility_permission_desc">Used to obtain screen information and click on screen controls.</string>
+    <string name="accessibility_permission_desc">Obtain screen information and click on screen controls.</string>
     <string name="enable_notification_permission_first">Please enable notification permission first.</string>
     <string name="overlay_permission">Overlay Permission</string>
-    <string name="overlay_permission_desc">Used for background prompts, displaying save snapshot button, and other features.</string>
+    <string name="overlay_permission_desc">Background prompts, displaying snapshot saving button, and other features.</string>
     <string name="enable_service">Enable Service</string>
-    <string name="enable_service_desc">Keep the service running, matching screen target nodes based on subscription rules.</string>
+    <string name="enable_service_desc">Keep the service running, matching screen targets based on subscription rules.</string>
     <string name="click_history">Click History</string>
     <string name="quickly_locate_disabling_rules_here">If a misoperation occurs, quickly locate disabling rules here.</string>
     <string name="latest_clicking">Latest Click: %s</string>
@@ -85,7 +85,7 @@
     <string name="dark_mode">Dark Mode</string>
     <string name="enable_rules">Enable Rules</string>
     <string name="save_log">Save Log</string>
-    <string name="save_log_desc">Save logs for the last 7 days, occupying approximately 5MB of space.</string>
+    <string name="save_log_desc">Save logs for the last 7 days, occupying about 5MB of space.</string>
     <string name="delete_success">Deletion Successful</string>
     <string name="share_log">Share Log</string>
     <string name="no_log">No Logs Available</string>
@@ -101,7 +101,7 @@
     <string name="follow_system">Follow System</string>
 
     <!-- upgrade dialog -->
-    <string name="detect_new_version">New Version Detected</string>
+    <string name="detect_new_version">Detect New Version</string>
     <string name="download_new_version">Download Update</string>
     <string name="downloading_new_version">Downloading Update</string>
     <string name="stop_download">Stop Download</string>
@@ -128,11 +128,11 @@
     <string name="http_service_desc">Enable HTTP service to transfer data within the same local network.</string>
     <string name="http_service_port">HTTP Service Port - %d</string>
     <string name="auto_clear_subscription_cache">Auto Clear Subscription Cache</string>
-    <string name="auto_clear_subscription_cache_desc">Clear memory subscriptions when the HTTP service is turned off.</string>
+    <string name="auto_clear_subscription_cache_desc">Clear memory of subscriptions when the HTTP service is turned off.</string>
     <string name="screenshot_service">Screenshot Service</string>
-    <string name="screenshot_service_desc">Screen capture is required for generating snapshots. Not needed on Android 11.</string>
+    <string name="screenshot_service_desc">Screen capture is required for generating snapshots. (Not needed on Android 11.)</string>
     <string name="overlay_service">Overlay Service</string>
-    <string name="overlay_service_desc">Show the screenshot button to allow users to actively save snapshots.</string>
+    <string name="overlay_service_desc">Show the screenshot button to allow users to save snapshots instantly.</string>
     <string name="volume_snapshot">Volume Snapshot</string>
     <string name="volume_snapshot_desc">If the floating window button does not work, use volume changes to generate snapshots.</string>
     <string name="hide_snapshot_status_bar">Hide Snapshot Status Bar</string>

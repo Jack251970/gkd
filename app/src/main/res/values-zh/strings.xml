@@ -17,7 +17,7 @@
 
     <!-- about page -->
     <string name="about">关于</string>
-    <string name="app_desc">一款基于&#160;无障碍+高级选择器+订阅规则&#160;的自定义屏幕点击软件。</string>
+    <string name="app_desc">一款基于&#160;无障碍，高级选择器与订阅规则&#160;的自定义屏幕点击软件。</string>
     <string name="app_desc_appendix">注：本版本为克隆版本，基于源项目进行了一定的定制和优化。</string>
     <string name="and_divider">，</string>
     <string name="project_author">项目作者：</string>
@@ -58,12 +58,12 @@
     <!-- control page -->
     <string name="homepage">主页</string>
     <string name="notification_permission">通知权限</string>
-    <string name="notification_permission_desc">用于启动后台服务，展示服务运行状态</string>
+    <string name="notification_permission_desc">启动后台服务，展示服务运行状态</string>
     <string name="accessibility_permission">无障碍权限</string>
-    <string name="accessibility_permission_desc">用于获取屏幕信息，点击屏幕上的控件</string>
+    <string name="accessibility_permission_desc">获取屏幕信息，点击屏幕上的控件</string>
     <string name="enable_notification_permission_first">请先启用通知权限</string>
     <string name="overlay_permission">悬浮窗权限</string>
-    <string name="overlay_permission_desc">用于后台提示，显示保存快照按钮等功能</string>
+    <string name="overlay_permission_desc">后台提示，显示保存快照按钮等功能</string>
     <string name="enable_service">启用服务</string>
     <string name="enable_service_desc">保持服务开启，根据订阅规则匹配屏幕目标节点</string>
     <string name="click_history">点击记录</string>
@@ -133,9 +133,9 @@
     <string name="auto_clear_subscription_cache">自动清除订阅缓存</string>
     <string name="auto_clear_subscription_cache_desc">当HTTP服务关闭时，清除内存订阅</string>
     <string name="screenshot_service">截屏服务</string>
-    <string name="screenshot_service_desc">生成快照需要获取屏幕截图，Android11无需开启</string>
+    <string name="screenshot_service_desc">生成快照需要获取屏幕截图（Android11无需开启）</string>
     <string name="overlay_service">悬浮窗服务</string>
-    <string name="overlay_service_desc">显示截屏按钮，便于用户主动保存快照</string>
+    <string name="overlay_service_desc">显示截屏按钮，便于用户快速保存快照</string>
     <string name="volume_snapshot">音量快照</string>
     <string name="volume_snapshot_desc">若悬浮窗按钮不工作，可使用音量变化来生成快照</string>
     <string name="hide_snapshot_status_bar">隐藏快照状态栏</string>
