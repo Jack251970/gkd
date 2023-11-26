@@ -1,6 +1,5 @@
 package li.songe.gkd.ui
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -42,6 +41,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -55,6 +55,8 @@ import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootNavGraph
 import kotlinx.coroutines.Dispatchers
 import kotlinx.serialization.encodeToString
+import li.songe.gkd.R
+import li.songe.gkd.app
 import li.songe.gkd.data.SubsConfig
 import li.songe.gkd.data.SubscriptionRaw
 import li.songe.gkd.db.DbSet
@@ -119,8 +121,8 @@ fun AppItemPage(
             }
         }, title = {
             Text(
-                text = if (subsItem == null) "订阅文件缺失" else (appInfoCache[appRaw?.id]?.name
-                    ?: appRaw?.name ?: appRaw?.id ?: "")
+                text = if (subsItem == null) stringResource(R.string.subscription_file_miss)
+                        else (appInfoCache[appRaw?.id]?.name ?: appRaw?.name ?: appRaw?.id ?: "")
             )
         }, actions = {})
     }, floatingActionButton = {
@@ -137,6 +139,7 @@ fun AppItemPage(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(contentPadding)
+                .padding(start = 10.dp, end = 10.dp)
         ) {
             item {
                 Spacer(modifier = Modifier.height(10.dp))
@@ -179,7 +182,7 @@ fun AppItemPage(
                                 )
                             } else {
                                 Text(
-                                    text = "规则组损坏",
+                                    text = stringResource(R.string.rule_group_corrupt),
                                     modifier = Modifier.fillMaxWidth(),
                                     fontSize = 14.sp,
                                     color = MaterialTheme.colorScheme.error
@@ -234,7 +237,7 @@ fun AppItemPage(
             text = {
                 Column {
                     if (showGroupItemVal.enable == false) {
-                        Text(text = "该规则组默认不启用")
+                        Text(text = stringResource(R.string.rule_group_default_disable))
                         Spacer(modifier = Modifier.height(10.dp))
                     }
                     Text(text = showGroupItemVal.desc ?: "-")
@@ -253,7 +256,7 @@ fun AppItemPage(
                                 )
                             )
                         }) {
-                            Text(text = "查看图片")
+                            Text(text = stringResource(R.string.view_image))
                         }
                     }
                     TextButton(onClick = {
@@ -263,9 +266,9 @@ fun AppItemPage(
                             )
                         )
                         ClipboardUtils.copyText(groupAppText)
-                        ToastUtils.showShort("复制成功")
+                        ToastUtils.showShort(app.getString(R.string.copy_success))
                     }) {
-                        Text(text = "复制规则组")
+                        Text(text = stringResource(R.string.copy_rule_group))
                     }
                 }
             })
@@ -280,14 +283,14 @@ fun AppItemPage(
                 shape = RoundedCornerShape(16.dp),
             ) {
                 Column {
-                    Text(text = "编辑", modifier = Modifier
+                    Text(text = stringResource(R.string.edit), modifier = Modifier
                         .clickable {
                             setEditGroupRaw(menuGroupRaw)
                             setMenuGroupRaw(null)
                         }
                         .padding(16.dp)
                         .fillMaxWidth())
-                    Text(text = "删除", modifier = Modifier
+                    Text(text = stringResource(R.string.delete), modifier = Modifier
                         .clickable {
                             vm.viewModelScope.launchTry(Dispatchers.IO) {
                                 val subsRaw = subsIdToRawFlow.value[subsItemId] ?: return@launchTry
@@ -308,7 +311,7 @@ fun AppItemPage(
                                 DbSet.subsConfigDao.delete(
                                     subsItemVal.id, appRawVal.id, menuGroupRaw.key
                                 )
-                                ToastUtils.showShort("删除成功")
+                                ToastUtils.showShort(app.getString(R.string.delete_success))
                                 setMenuGroupRaw(null)
                             }
                         }
@@ -325,41 +328,41 @@ fun AppItemPage(
         }
         val oldSource = remember { source }
         AlertDialog(
-            title = { Text(text = "编辑规则组") },
+            title = { Text(text = stringResource(R.string.edit_rule_group)) },
             text = {
                 OutlinedTextField(
                     value = source,
                     onValueChange = { source = it },
                     modifier = Modifier.fillMaxWidth(),
-                    placeholder = { Text(text = "请输入规则组") },
+                    placeholder = { Text(text = stringResource(R.string.enter_rule_group)) },
                     maxLines = 8,
                 )
             },
             onDismissRequest = { setEditGroupRaw(null) },
             dismissButton = {
                 TextButton(onClick = { setEditGroupRaw(null) }) {
-                    Text(text = "取消")
+                    Text(text = stringResource(R.string.cancel))
                 }
             },
             confirmButton = {
                 TextButton(onClick = {
                     if (oldSource == source) {
-                        ToastUtils.showShort("规则无变动")
+                        ToastUtils.showShort(app.getString(R.string.rule_group_unchanged))
                         return@TextButton
                     }
                     val newGroupRaw = try {
                         SubscriptionRaw.parseGroupRaw(source)
                     } catch (e: Exception) {
                         LogUtils.d(e)
-                        ToastUtils.showShort("非法规则:${e.message}")
+                        ToastUtils.showShort(app.getString(R.string.illegal_rule, e.message))
                         return@TextButton
                     }
                     if (newGroupRaw.key != editGroupRaw.key) {
-                        ToastUtils.showShort("不能更改规则组的key")
+                        ToastUtils.showShort(app.getString(R.string.cannot_change_rule_group_key))
                         return@TextButton
                     }
                     if (!newGroupRaw.valid) {
-                        ToastUtils.showShort("非法规则:存在非法选择器")
+                        ToastUtils.showShort(app.getString(R.string.illegal_rule_selector_illegal))
                         return@TextButton
                     }
                     setEditGroupRaw(null)
@@ -380,10 +383,10 @@ fun AppItemPage(
                             )
                         )
                         DbSet.subsItemDao.update(subsItemVal.copy(mtime = System.currentTimeMillis()))
-                        ToastUtils.showShort("更新成功")
+                        ToastUtils.showShort(app.getString(R.string.update_success))
                     }
                 }, enabled = source.isNotEmpty()) {
-                    Text(text = "更新")
+                    Text(text = stringResource(R.string.update))
                 }
             },
         )
@@ -393,12 +396,12 @@ fun AppItemPage(
         var source by remember {
             mutableStateOf("")
         }
-        AlertDialog(title = { Text(text = "添加规则组") }, text = {
+        AlertDialog(title = { Text(text = stringResource(R.string.add_rule_group)) }, text = {
             OutlinedTextField(
                 value = source,
                 onValueChange = { source = it },
                 modifier = Modifier.fillMaxWidth(),
-                placeholder = { Text(text = "请输入规则组\n可以是APP规则\n也可以是单个规则组") },
+                placeholder = { Text(text = stringResource(R.string.enter_rule_group_either_app_rule_or_single_rule_group)) },
                 maxLines = 8,
             )
         }, onDismissRequest = { showAddDlg = false }, confirmButton = {
@@ -413,28 +416,28 @@ fun AppItemPage(
                         SubscriptionRaw.parseGroupRaw(source)
                     } catch (e: Exception) {
                         LogUtils.d(e)
-                        ToastUtils.showShort("非法规则:${e.message}")
+                        ToastUtils.showShort(app.getString(R.string.illegal_rule, e.message))
                         return@TextButton
                     }
                     listOf(newGroupRaw)
                 } else {
                     if (newAppRaw.id != appRawVal.id) {
-                        ToastUtils.showShort("id不一致,无法添加")
+                        ToastUtils.showShort(app.getString(R.string.add_fail_inconsistent_id))
                         return@TextButton
                     }
                     if (newAppRaw.groups.isEmpty()) {
-                        ToastUtils.showShort("不能添加空规则组")
+                        ToastUtils.showShort(app.getString(R.string.add_fail_blank_rule_group))
                         return@TextButton
                     }
                     newAppRaw.groups
                 }
                 if (!tempGroups.all { g -> g.valid }) {
-                    ToastUtils.showShort("非法规则:存在非法选择器")
+                    ToastUtils.showShort(app.getString(R.string.illegal_rule_selector_illegal))
                     return@TextButton
                 }
                 tempGroups.forEach { g ->
                     if (appRawVal.groups.any { g2 -> g2.name == g.name }) {
-                        ToastUtils.showShort("存在同名规则[${g.name}]")
+                        ToastUtils.showShort(app.getString(R.string.exist_rule_with_same_name, g.name))
                         return@TextButton
                     }
                 }
@@ -453,14 +456,14 @@ fun AppItemPage(
                     subsItemVal.subsFile.writeText(json.encodeToString(newSubsRaw))
                     DbSet.subsItemDao.update(subsItemVal.copy(mtime = System.currentTimeMillis()))
                     showAddDlg = false
-                    ToastUtils.showShort("添加成功")
+                    ToastUtils.showShort(app.getString(R.string.add_success))
                 }
             }, enabled = source.isNotEmpty()) {
-                Text(text = "添加")
+                Text(text = stringResource(R.string.add))
             }
         }, dismissButton = {
             TextButton(onClick = { showAddDlg = false }) {
-                Text(text = "取消")
+                Text(text = stringResource(R.string.cancel))
             }
         })
     }

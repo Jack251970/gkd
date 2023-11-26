@@ -34,6 +34,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -42,6 +43,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootNavGraph
 import kotlinx.coroutines.Dispatchers
+import li.songe.gkd.R
 import li.songe.gkd.data.ClickLog
 import li.songe.gkd.db.DbSet
 import li.songe.gkd.ui.component.PageScaffold
@@ -85,7 +87,7 @@ fun ClickLogPage() {
                     )
                 }
             },
-            title = { Text(text = "点击记录" + if (clickLogCount <= 0) "" else ("-$clickLogCount")) },
+            title = { Text(text = stringResource(R.string.click_history) + if (clickLogCount <= 0) "" else ("-$clickLogCount")) },
             actions = {
                 if (clickLogs.isNotEmpty()) {
                     IconButton(onClick = { showDeleteDlg = true }) {
@@ -99,15 +101,17 @@ fun ClickLogPage() {
     }, content = { contentPadding ->
         if (clickLogs.isNotEmpty()) {
             LazyColumn(
-                modifier = Modifier.padding(contentPadding),
+                modifier = Modifier
+                    .padding(contentPadding)
+                    .padding(start = 10.dp, end = 10.dp),
             ) {
                 items(clickLogs, { triggerLog -> triggerLog.id }) { triggerLog ->
                     Column(modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(10.dp)
                         .clickable {
                             previewClickLog = triggerLog
-                        }
-                        .fillMaxWidth()
-                        .padding(10.dp)) {
+                        }) {
                         Row {
                             Text(
                                 text = triggerLog.id.format("MM-dd HH:mm:ss"),
@@ -168,7 +172,7 @@ fun ClickLogPage() {
                 horizontalAlignment = Alignment.CenterHorizontally,
             ) {
                 Spacer(modifier = Modifier.height(40.dp))
-                Text(text = "暂无记录")
+                Text(text = stringResource(R.string.no_history))
             }
         }
     })
@@ -182,7 +186,7 @@ fun ClickLogPage() {
                 shape = RoundedCornerShape(16.dp),
             ) {
                 Column {
-                    Text(text = "查看规则组", modifier = Modifier
+                    Text(text = stringResource(R.string.view_rule_group), modifier = Modifier
                         .clickable {
                             previewTriggerLogVal.appId ?: return@clickable
                             navController.navigate(
@@ -197,7 +201,7 @@ fun ClickLogPage() {
                         .fillMaxWidth()
                         .padding(16.dp))
                     Text(
-                        text = "删除",
+                        text = stringResource(R.string.delete),
                         modifier = Modifier
                             .clickable(onClick = scope.launchAsFn {
                                 previewClickLog = null
@@ -215,20 +219,20 @@ fun ClickLogPage() {
 
     if (showDeleteDlg) {
         AlertDialog(onDismissRequest = { showDeleteDlg = false },
-            title = { Text(text = "是否删除全部点击记录?") },
+            title = { Text(text = stringResource(R.string.if_delete_all_click_history)) },
             confirmButton = {
                 TextButton(onClick = scope.launchAsFn(Dispatchers.IO) {
                     showDeleteDlg = false
                     DbSet.clickLogDao.deleteAll()
                 }) {
-                    Text(text = "是", color = MaterialTheme.colorScheme.error)
+                    Text(text = stringResource(R.string.yes), color = MaterialTheme.colorScheme.error)
                 }
             },
             dismissButton = {
                 TextButton(onClick = {
                     showDeleteDlg = false
                 }) {
-                    Text(text = "否")
+                    Text(text = stringResource(R.string.no))
                 }
             })
     }

@@ -6,6 +6,8 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
+import li.songe.gkd.R
+import li.songe.gkd.app
 import li.songe.gkd.db.DbSet
 import li.songe.gkd.util.appIdToRulesFlow
 import li.songe.gkd.util.appInfoCacheFlow
@@ -42,10 +44,10 @@ class ControlVm @Inject constructor() : ViewModel() {
         val groupSize =
             appIdToRules.values.sumOf { rules -> rules.map { r -> r.group.key }.toSet().size }
         (if (groupSize > 0) {
-            "${appSize}应用/${groupSize}规则组"
+            app.getString(R.string.app_rule_group_count, appSize, groupSize)
         } else {
-            "暂无规则"
-        }) + if (clickCount > 0) "/${clickCount}点击" else ""
+            app.getString(R.string.no_rules)
+        }) + if (clickCount > 0) app.getString(R.string.click_count, clickCount) else ""
     }.stateIn(viewModelScope, SharingStarted.Eagerly, "")
 
 }

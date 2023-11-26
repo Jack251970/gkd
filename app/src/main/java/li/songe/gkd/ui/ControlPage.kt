@@ -104,8 +104,8 @@ fun ControlPage() {
         }
 
         if (!canDrawOverlays) {
-            AuthCard(title = stringResource(R.string.overlays_permission),
-                desc = stringResource(R.string.overlays_permission_desc),
+            AuthCard(title = stringResource(R.string.overlay_permission),
+                desc = stringResource(R.string.overlay_permission_desc),
                 onAuthClick = {
                     val intent = Intent(
                         Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
@@ -137,7 +137,7 @@ fun ControlPage() {
                 .clickable {
                     navController.navigate(ClickLogPageDestination)
                 }
-                .padding(10.dp, 5.dp),
+                .padding(10.dp),
         ) {
             Column(modifier = Modifier.weight(1f)) {
                 Text(
@@ -155,7 +155,7 @@ fun ControlPage() {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(10.dp, 5.dp)
+                .padding(10.dp)
         ) {
             Text(text = subsStatus, fontSize = 18.sp)
             if (latestRecordDesc != null) {

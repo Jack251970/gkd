@@ -24,12 +24,14 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 import coil.compose.SubcomposeAsyncImage
 import coil.request.ImageRequest
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootNavGraph
+import li.songe.gkd.R
 import li.songe.gkd.util.LocalNavController
 import li.songe.gkd.util.appInfoCacheFlow
 import li.songe.gkd.util.imageLoader
@@ -64,7 +66,7 @@ fun GroupItemPage(subsInt: Long, appId: String, groupKey: Int) {
             title = {
                 Text(
                     text = ((appInfoCache[appId]?.name ?: appRaw?.name
-                    ?: appId) + "/" + (group?.name ?: "未知规则"))
+                    ?: appId) + "/" + (group?.name ?: stringResource(R.string.unknown_rule)))
                 )
             },
             actions = {},
@@ -98,7 +100,7 @@ fun GroupItemPage(subsInt: Long, appId: String, groupKey: Int) {
                                 horizontalAlignment = Alignment.CenterHorizontally,
                                 modifier = Modifier.fillMaxWidth()
                             ) {
-                                Text(text = "加载失败", color = MaterialTheme.colorScheme.error)
+                                Text(text = stringResource(R.string.load_fail), color = MaterialTheme.colorScheme.error)
                             }
                         },
                         imageLoader = imageLoader

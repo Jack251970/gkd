@@ -139,7 +139,7 @@ fun SettingsPage() {
                     )
                 )
                 if (it && !Settings.canDrawOverlays(context)) {
-                    ToastUtils.showShort(context.getString(R.string.need_overlays_permission))
+                    ToastUtils.showShort(context.getString(R.string.enable_overlay_permission_first))
                 }
             })
         Divider()

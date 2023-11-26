@@ -12,6 +12,8 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import li.songe.gkd.R
+import li.songe.gkd.app
 import li.songe.gkd.data.SubsItem
 import li.songe.gkd.data.SubscriptionRaw
 import li.songe.gkd.db.DbSet
@@ -30,12 +32,12 @@ class SubsManageVm @Inject constructor() : ViewModel() {
 
         if (refreshingFlow.value) return@launchTry
         if (!URLUtil.isNetworkUrl(url)) {
-            ToastUtils.showShort("非法链接")
+            ToastUtils.showShort(app.getString(R.string.illegal_link))
             return@launchTry
         }
         val subItems = subsItemsFlow.value
         if (subItems.any { it.updateUrl == url }) {
-            ToastUtils.showShort("订阅链接已存在")
+            ToastUtils.showShort(app.getString(R.string.subscription_link_exist))
             return@launchTry
         }
         refreshingFlow.value = true
@@ -44,22 +46,22 @@ class SubsManageVm @Inject constructor() : ViewModel() {
                 client.get(url).bodyAsText()
             } catch (e: Exception) {
                 e.printStackTrace()
-                ToastUtils.showShort("下载订阅文件失败")
+                ToastUtils.showShort(app.getString(R.string.download_subscription_file_fail))
                 return@launchTry
             }
             val newSubsRaw = try {
                 SubscriptionRaw.parse(text)
             } catch (e: Exception) {
                 e.printStackTrace()
-                ToastUtils.showShort("解析订阅文件失败")
+                ToastUtils.showShort(app.getString(R.string.parse_subscription_file_fail))
                 return@launchTry
             }
             if (subItems.any { it.id == newSubsRaw.id }) {
-                ToastUtils.showShort("订阅已存在")
+                ToastUtils.showShort(app.getString(R.string.subscription_exist))
                 return@launchTry
             }
             if (newSubsRaw.id < 0) {
-                ToastUtils.showShort("订阅id不可为${newSubsRaw.id}\n负数id为内部使用")
+                ToastUtils.showShort(app.getString(R.string.illegal_subscription_id, newSubsRaw.id))
                 return@launchTry
             }
             val newItem = SubsItem(
@@ -80,7 +82,7 @@ class SubsManageVm @Inject constructor() : ViewModel() {
                 newItem.subsFile.writeText(text)
             }
             DbSet.subsItemDao.insert(newItem)
-            ToastUtils.showShort("成功添加订阅")
+            ToastUtils.showShort(app.getString(R.string.add_subscription_success))
         } finally {
             refreshingFlow.value = false
         }
@@ -123,13 +125,13 @@ class SubsManageVm @Inject constructor() : ViewModel() {
         }
         if (newSubsItems.isEmpty()) {
             if (errorNum == oldSubItems.size) {
-                ToastUtils.showShort("更新失败")
+                ToastUtils.showShort(app.getString(R.string.update_fail))
             } else {
-                ToastUtils.showShort("暂无更新")
+                ToastUtils.showShort(app.getString(R.string.no_update))
             }
         } else {
             DbSet.subsItemDao.update(*newSubsItems.toTypedArray())
-            ToastUtils.showShort("更新 ${newSubsItems.size} 条订阅")
+            ToastUtils.showShort(app.getString(R.string.update_subscription_count, newSubsItems.size))
         }
         delay(500)
         refreshingFlow.value = false

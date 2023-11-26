@@ -2,7 +2,6 @@ package li.songe.gkd.ui
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.blankj.utilcode.util.LogUtils
 import dagger.hilt.android.lifecycle.HiltViewModel
 import io.ktor.client.call.body
 import io.ktor.client.plugins.onUpload
@@ -17,6 +16,8 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.serialization.encodeToString
+import li.songe.gkd.R
+import li.songe.gkd.app
 import li.songe.gkd.appScope
 import li.songe.gkd.data.GithubPoliciesAsset
 import li.songe.gkd.data.RpcError
@@ -53,7 +54,7 @@ class HomePageVm @Inject constructor() : ViewModel() {
                     json.encodeToString(
                         SubscriptionRaw(
                             id = localSubsItem.id,
-                            name = "本地订阅",
+                            name = app.getString(R.string.local_subscription),
                             version = 0,
                             author = "gkd",
                         )
@@ -74,7 +75,6 @@ class HomePageVm @Inject constructor() : ViewModel() {
                         )
                     }
                 oldDbFile.delete()
-                LogUtils.d("执行快照迁移")
             }
         }
 

@@ -40,6 +40,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -51,6 +52,8 @@ import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootNavGraph
 import kotlinx.coroutines.Dispatchers
 import kotlinx.serialization.encodeToString
+import li.songe.gkd.R
+import li.songe.gkd.app
 import li.songe.gkd.data.SubsConfig
 import li.songe.gkd.data.SubscriptionRaw
 import li.songe.gkd.db.DbSet
@@ -127,7 +130,7 @@ fun SubsPage(
                     AppBarTextField(
                         value = searchStr,
                         onValueChange = { newValue -> vm.searchStrFlow.value = newValue.trim() },
-                        hint = "请输入应用名称",
+                        hint = stringResource(R.string.enter_app_name),
                         modifier = Modifier.focusRequester(focusRequester)
                     )
                 } else {
@@ -165,7 +168,10 @@ fun SubsPage(
         },
         content =  { padding ->
             LazyColumn(
-                verticalArrangement = Arrangement.spacedBy(0.dp), modifier = Modifier.padding(padding)
+                modifier = Modifier
+                    .padding(padding)
+                    .padding(start = 10.dp, end = 10.dp),
+                verticalArrangement = Arrangement.spacedBy(0.dp),
             ) {
                 itemsIndexed(appAndConfigs, { i, a -> i.toString() + a.t0.id }) { _, a ->
                     val (appRaw, subsConfig, enableSize) = a
@@ -200,9 +206,9 @@ fun SubsPage(
                             horizontalAlignment = Alignment.CenterHorizontally,
                         ) {
                             if (searchStr.isNotEmpty()) {
-                                Text(text = "暂无搜索结果")
+                                Text(text = stringResource(R.string.no_search_result))
                             } else {
-                                Text(text = "此订阅暂无规则")
+                                Text(text = stringResource(R.string.subscription_no_rules))
                             }
                         }
                     }
@@ -221,13 +227,13 @@ fun SubsPage(
         var source by remember {
             mutableStateOf("")
         }
-        AlertDialog(title = { Text(text = "添加APP规则") }, text = {
+        AlertDialog(title = { Text(text = stringResource(R.string.add_app_rule)) }, text = {
             OutlinedTextField(
                 value = source,
                 onValueChange = { source = it },
                 maxLines = 8,
                 modifier = Modifier.fillMaxWidth(),
-                placeholder = { Text(text = "请输入规则\n若APP规则已经存在则追加") },
+                placeholder = { Text(text = stringResource(R.string.enter_rules_add_if_exists)) },
             )
         }, onDismissRequest = { showAddDlg = false }, confirmButton = {
             TextButton(onClick = {
@@ -235,15 +241,15 @@ fun SubsPage(
                     SubscriptionRaw.parseAppRaw(source)
                 } catch (e: Exception) {
                     LogUtils.d(e)
-                    ToastUtils.showShort("非法规则${e.message}")
+                    ToastUtils.showShort(app.getString(R.string.illegal_rule, e.message))
                     return@TextButton
                 }
                 if (newAppRaw.groups.isEmpty()) {
-                    ToastUtils.showShort("不允许添加空规则组")
+                    ToastUtils.showShort(app.getString(R.string.cannot_add_blank_rule_group))
                     return@TextButton
                 }
                 if (newAppRaw.groups.any { s -> s.name.isBlank() }) {
-                    ToastUtils.showShort("不允许添加空白名规则组,请先命名")
+                    ToastUtils.showShort(app.getString(R.string.cannot_add_blank_rule_group_name_first))
                     return@TextButton
                 }
                 val oldAppRawIndex = subsRaw.apps.indexOfFirst { a -> a.id == newAppRaw.id }
@@ -252,7 +258,7 @@ fun SubsPage(
                     // check same group name
                     newAppRaw.groups.forEach { g ->
                         if (oldAppRaw.groups.any { g0 -> g0.name == g.name }) {
-                            ToastUtils.showShort("已经存在同名规则[${g.name}]\n请修改名称后再添加")
+                            ToastUtils.showShort(app.getString(R.string.exist_rule_with_same_name, g.name))
                             return@TextButton
                         }
                     }
@@ -292,14 +298,14 @@ fun SubsPage(
                     )
                     DbSet.subsItemDao.update(subsItemVal.copy(mtime = System.currentTimeMillis()))
                     showAddDlg = false
-                    ToastUtils.showShort("添加成功")
+                    ToastUtils.showShort(app.getString(R.string.add_success))
                 }
             }, enabled = source.isNotEmpty()) {
-                Text(text = "添加")
+                Text(text = stringResource(R.string.add))
             }
         }, dismissButton = {
             TextButton(onClick = { showAddDlg = false }) {
-                Text(text = "取消")
+                Text(text = stringResource(R.string.cancel))
             }
         })
     }
@@ -309,20 +315,20 @@ fun SubsPage(
         var source by remember {
             mutableStateOf(json.encodeToString(editAppRawVal))
         }
-        AlertDialog(title = { Text(text = "编辑本地APP规则") }, text = {
+        AlertDialog(title = { Text(text = stringResource(R.string.edit_local_app_rules)) }, text = {
             OutlinedTextField(
                 value = source,
                 onValueChange = { source = it },
                 maxLines = 8,
                 modifier = Modifier.fillMaxWidth(),
-                placeholder = { Text(text = "请输入规则") },
+                placeholder = { Text(text = stringResource(R.string.enter_rules)) },
             )
         }, onDismissRequest = { editAppRaw = null }, confirmButton = {
             TextButton(onClick = {
                 try {
                     val newAppRaw = SubscriptionRaw.parseAppRaw(source)
                     if (newAppRaw.id != editAppRawVal.id) {
-                        ToastUtils.showShort("不允许修改规则id")
+                        ToastUtils.showShort(app.getString(R.string.cannot_edit_rule_id))
                         return@TextButton
                     }
                     val oldAppRawIndex = subsRaw.apps.indexOfFirst { a -> a.id == editAppRawVal.id }
@@ -338,18 +344,18 @@ fun SubsPage(
                         )
                         DbSet.subsItemDao.update(subsItemVal.copy(mtime = System.currentTimeMillis()))
                         editAppRaw = null
-                        ToastUtils.showShort("更新成功")
+                        ToastUtils.showShort(app.getString(R.string.update_success))
                     }
                 } catch (e: Exception) {
                     LogUtils.d(e)
-                    ToastUtils.showShort("非法规则${e.message}")
+                    ToastUtils.showShort(app.getString(R.string.illegal_rule, e.message))
                 }
             }, enabled = source.isNotEmpty()) {
-                Text(text = "添加")
+                Text(text = stringResource(R.string.add))
             }
         }, dismissButton = {
             TextButton(onClick = { editAppRaw = null }) {
-                Text(text = "取消")
+                Text(text = stringResource(R.string.cancel))
             }
         })
     }
@@ -365,19 +371,19 @@ fun SubsPage(
                 shape = RoundedCornerShape(16.dp),
             ) {
                 Column {
-                    Text(text = "复制", modifier = Modifier
+                    Text(text = stringResource(R.string.copy), modifier = Modifier
                         .clickable {
                             ClipboardUtils.copyText(
                                 json.encodeToString(
                                     menuAppRawVal
                                 )
                             )
-                            ToastUtils.showShort("复制成功")
+                            ToastUtils.showShort(app.getString(R.string.delete_success))
                             menuAppRaw = null
                         }
                         .fillMaxWidth()
                         .padding(16.dp))
-                    Text(text = "删除", modifier = Modifier
+                    Text(text = stringResource(R.string.delete), modifier = Modifier
                         .clickable {
                             // 也许需要二次确认
                             vm.viewModelScope.launchTry(Dispatchers.IO) {
@@ -388,7 +394,7 @@ fun SubsPage(
                                 )
                                 DbSet.subsItemDao.update(subsItemVal.copy(mtime = System.currentTimeMillis()))
                                 DbSet.subsConfigDao.delete(subsItemVal.id, menuAppRawVal.id)
-                                ToastUtils.showShort("删除成功")
+                                ToastUtils.showShort(app.getString(R.string.delete_success))
                             }
                             menuAppRaw = null
                         }

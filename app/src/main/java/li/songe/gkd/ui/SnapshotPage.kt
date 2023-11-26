@@ -40,6 +40,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -56,6 +57,8 @@ import com.ramcosta.composedestinations.annotation.RootNavGraph
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import li.songe.gkd.R
+import li.songe.gkd.app
 import li.songe.gkd.data.Snapshot
 import li.songe.gkd.db.DbSet
 import li.songe.gkd.debug.SnapshotExt
@@ -111,7 +114,9 @@ fun SnapshotPage() {
                     )
                 }
             },
-            title = { Text(text = if (snapshots.isEmpty()) "快照记录" else "快照记录-${snapshots.size}") },
+            title = { Text(
+                text = if (snapshots.isEmpty()) stringResource(R.string.snapshot_history) else
+                    stringResource(R.string.snapshot_history) +"-${snapshots.size}") },
             actions = {
                 if (snapshots.isNotEmpty()) {
                     IconButton(onClick = { showDeleteDlg = true }) {
@@ -125,7 +130,9 @@ fun SnapshotPage() {
     }, content = { contentPadding ->
         if (snapshots.isNotEmpty()) {
             LazyColumn(
-                modifier = Modifier.padding(contentPadding),
+                modifier = Modifier
+                    .padding(contentPadding)
+                    .padding(start = 10.dp, end = 10.dp),
             ) {
                 items(snapshots, { it.id }) { snapshot ->
                     Column(modifier = Modifier
@@ -177,7 +184,7 @@ fun SnapshotPage() {
                 horizontalAlignment = Alignment.CenterHorizontally,
             ) {
                 Spacer(modifier = Modifier.height(40.dp))
-                Text(text = "暂无记录")
+                Text(text = stringResource(R.string.no_history))
             }
         }
     })
@@ -195,7 +202,7 @@ fun SnapshotPage() {
                         .fillMaxWidth()
                         .padding(16.dp)
                     Text(
-                        text = "查看", modifier = Modifier
+                        text = stringResource(R.string.view), modifier = Modifier
                             .clickable(onClick = scope.launchAsFn {
                                 navController.navigate(
                                     ImagePreviewPageDestination(
@@ -209,11 +216,14 @@ fun SnapshotPage() {
                     )
                     Divider()
                     Text(
-                        text = "分享",
+                        text = stringResource(R.string.share),
                         modifier = Modifier
                             .clickable(onClick = vm.viewModelScope.launchAsFn {
                                 val zipFile = SnapshotExt.getSnapshotZipFile(snapshotVal.id)
-                                context.shareFile(zipFile, "分享快照文件")
+                                context.shareFile(
+                                    zipFile,
+                                    app.getString(R.string.share_snapshot_file)
+                                )
                                 selectedSnapshot = null
                             })
                             .then(modifier)
@@ -221,17 +231,17 @@ fun SnapshotPage() {
                     Divider()
                     if (snapshotVal.githubAssetId != null) {
                         Text(
-                            text = "复制链接", modifier = Modifier
+                            text = stringResource(R.string.copy_link), modifier = Modifier
                                 .clickable(onClick = {
                                     selectedSnapshot = null
                                     ClipboardUtils.copyText(IMPORT_BASE_URL + snapshotVal.githubAssetId)
-                                    ToastUtils.showShort("复制成功")
+                                    ToastUtils.showShort(app.getString(R.string.copy_success))
                                 })
                                 .then(modifier)
                         )
                     } else {
                         Text(
-                            text = "生成链接(需科学上网)", modifier = Modifier
+                            text = stringResource(R.string.generate_link), modifier = Modifier
                                 .clickable(onClick = {
                                     selectedSnapshot = null
                                     vm.uploadZip(snapshotVal)
@@ -242,14 +252,14 @@ fun SnapshotPage() {
                     Divider()
 
                     Text(
-                        text = "保存截图到相册",
+                        text = stringResource(R.string.save_screenshot_to_gallery),
                         modifier = Modifier
                             .clickable(onClick = vm.viewModelScope.launchAsFn {
                                 if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
                                     val isGranted =
                                         requestPermissionLauncher.launchForResult(Manifest.permission.WRITE_EXTERNAL_STORAGE)
                                     if (!isGranted) {
-                                        ToastUtils.showShort("保存失败,暂无权限")
+                                        ToastUtils.showShort(app.getString(R.string.save_fail))
                                         return@launchAsFn
                                     }
                                 }
@@ -258,14 +268,14 @@ fun SnapshotPage() {
                                     Bitmap.CompressFormat.PNG,
                                     true
                                 )
-                                ToastUtils.showShort("保存成功")
+                                ToastUtils.showShort(app.getString(R.string.save_success))
                                 selectedSnapshot = null
                             })
                             .then(modifier)
                     )
                     Divider()
                     Text(
-                        text = "替换截图(去除隐私)",
+                        text = stringResource(R.string.replace_screenshot),
                         modifier = Modifier
                             .clickable(onClick = vm.viewModelScope.launchAsFn {
                                 val uri = pickContentLauncher.launchForImageResult()
@@ -283,18 +293,18 @@ fun SnapshotPage() {
                                             DbSet.snapshotDao.update(snapshotVal.copy(githubAssetId = null))
                                         }
                                     } else {
-                                        ToastUtils.showShort("截图尺寸不一致,无法替换")
+                                        ToastUtils.showShort(app.getString(R.string.replace_fail))
                                         return@withContext
                                     }
                                 }
-                                ToastUtils.showShort("替换成功")
+                                ToastUtils.showShort(app.getString(R.string.replace_success))
                                 selectedSnapshot = null
                             })
                             .then(modifier)
                     )
                     Divider()
                     Text(
-                        text = "删除", modifier = Modifier
+                        text = stringResource(R.string.delete), modifier = Modifier
                             .clickable(onClick = scope.launchAsFn {
                                 DbSet.snapshotDao.delete(snapshotVal)
                                 withContext(Dispatchers.IO) {
@@ -312,7 +322,7 @@ fun SnapshotPage() {
     when (val uploadStatusVal = uploadStatus) {
         is LoadStatus.Failure -> {
             AlertDialog(
-                title = { Text(text = "上传失败") },
+                title = { Text(text = stringResource(R.string.load_fail)) },
                 text = {
                     Text(text = uploadStatusVal.exception.let {
                         it.message ?: it.toString()
@@ -323,7 +333,7 @@ fun SnapshotPage() {
                     TextButton(onClick = {
                         vm.uploadStatusFlow.value = null
                     }) {
-                        Text(text = "关闭")
+                        Text(text = stringResource(R.string.off))
                     }
                 },
             )
@@ -331,38 +341,38 @@ fun SnapshotPage() {
 
         is LoadStatus.Loading -> {
             AlertDialog(
-                title = { Text(text = "上传文件中") },
+                title = { Text(text = stringResource(R.string.uploading_file)) },
                 text = {
                     LinearProgressIndicator(progress = uploadStatusVal.progress)
                 },
                 onDismissRequest = { },
                 confirmButton = {
                     TextButton(onClick = {
-                        vm.uploadJob?.cancel(CancellationException("终止上传"))
+                        vm.uploadJob?.cancel(CancellationException(app.getString(R.string.terminate_upload)))
                         vm.uploadJob = null
                     }) {
-                        Text(text = "终止上传")
+                        Text(text = stringResource(R.string.terminate_upload))
                     }
                 },
             )
         }
 
         is LoadStatus.Success -> {
-            AlertDialog(title = { Text(text = "上传完成") }, text = {
+            AlertDialog(title = { Text(text = stringResource(R.string.upload_success)) }, text = {
                 Text(text = IMPORT_BASE_URL + uploadStatusVal.result.id)
             }, onDismissRequest = {}, dismissButton = {
                 TextButton(onClick = {
                     vm.uploadStatusFlow.value = null
                 }) {
-                    Text(text = "关闭")
+                    Text(text = stringResource(R.string.off))
                 }
             }, confirmButton = {
                 TextButton(onClick = {
                     ClipboardUtils.copyText(IMPORT_BASE_URL + uploadStatusVal.result.id)
-                    ToastUtils.showShort("复制成功")
+                    ToastUtils.showShort(app.getString(R.string.copy_success))
                     vm.uploadStatusFlow.value = null
                 }) {
-                    Text(text = "复制")
+                    Text(text = stringResource(R.string.copy))
                 }
             })
         }
@@ -372,7 +382,7 @@ fun SnapshotPage() {
 
     if (showDeleteDlg) {
         AlertDialog(onDismissRequest = { showDeleteDlg = false },
-            title = { Text(text = "是否删除全部快照记录?") },
+            title = { Text(text = stringResource(R.string.if_delete_all_snapshot_history)) },
             confirmButton = {
                 TextButton(
                     onClick = scope.launchAsFn(Dispatchers.IO) {
@@ -383,14 +393,14 @@ fun SnapshotPage() {
                         DbSet.snapshotDao.deleteAll()
                     },
                 ) {
-                    Text(text = "是", color = MaterialTheme.colorScheme.error)
+                    Text(text = stringResource(R.string.yes), color = MaterialTheme.colorScheme.error)
                 }
             },
             dismissButton = {
                 TextButton(onClick = {
                     showDeleteDlg = false
                 }) {
-                    Text(text = "否")
+                    Text(text = stringResource(R.string.no))
                 }
             })
     }
