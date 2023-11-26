@@ -211,7 +211,7 @@
     <string name="no_local_subscription_file_refresh_page">No local subscription file, please refresh the page</string>
 
     <!-- authorization card -->
-    <string name="authorization">Authorization</string>
+    <string name="authorization">DOA</string>
 
     <!-- time ext -->
     <string name="time_ago_year">%d years ago</string>

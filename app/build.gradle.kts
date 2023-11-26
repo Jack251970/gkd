@@ -24,7 +24,7 @@ android {
 
         applicationId = "li.songe.gkd"
         versionCode = 14
-        versionName = "1.5.4.2"
+        versionName = "1.5.4.3"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
