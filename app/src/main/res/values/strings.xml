@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">GKD</string>
+    <string name="app_name" translatable="false">GKD</string>
     <string name="yes">是</string>
     <string name="no">否</string>
     <string name="confirm">确认</string>
@@ -207,4 +207,22 @@
     <string name="add_subscription_success">成功添加订阅</string>
     <string name="update_fail">更新失败</string>
     <string name="update_subscription_count">更新%d条订阅</string>
+
+    <!-- subscription item card -->
+    <string name="local_source">本地来源</string>
+    <string name="trusted_source">可信来源</string>
+    <string name="unknown_source">未知来源</string>
+    <string name="no_local_subscription_file_refresh_page">本地无订阅文件，请刷新界面</string>
+
+    <!-- authorization card -->
+    <string name="authorization">授权</string>
+
+    <!-- time ext -->
+    <string name="time_ago_year">%d年前</string>
+    <string name="time_ago_month">%d月前</string>
+    <string name="time_ago_week">%d周前</string>
+    <string name="time_ago_day">%d天前</string>
+    <string name="time_ago_hour">%d小时前</string>
+    <string name="time_ago_minute">%d分钟前</string>
+    <string name="time_ago_just_now">刚刚</string>
 </resources>

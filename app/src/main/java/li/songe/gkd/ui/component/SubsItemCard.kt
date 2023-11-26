@@ -18,9 +18,11 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import li.songe.gkd.R
 import li.songe.gkd.data.SubsItem
 import li.songe.gkd.data.SubscriptionRaw
 import li.songe.gkd.util.formatTimeAgo
@@ -38,15 +40,15 @@ fun SubsItemCard(
     Box {
         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
             if (subsItem.id < 0) {
-                Text(text = "本地来源", fontSize = 12.sp)
+                Text(text = stringResource(R.string.local_source), fontSize = 12.sp)
             } else if (subsItem.updateUrl != null && safeRemoteBaseUrls.any { s ->
                     subsItem.updateUrl.startsWith(
                         s
                     )
                 }) {
-                Text(text = "可信来源", fontSize = 12.sp)
+                Text(text = stringResource(R.string.trusted_source), fontSize = 12.sp)
             } else {
-                Text(text = "未知来源", fontSize = 12.sp)
+                Text(text = stringResource(R.string.unknown_source), fontSize = 12.sp)
             }
             Spacer(modifier = Modifier.width(10.dp))
         }
@@ -87,17 +89,17 @@ fun SubsItemCard(
                         val groupsSize = apps.sumOf { it.groups.size }
                         if (groupsSize > 0) {
                             Text(
-                                text = "${apps.size}应用/${groupsSize}规则组", fontSize = 14.sp
+                                text = stringResource(R.string.app_rule_group_count, apps.size, groupsSize), fontSize = 14.sp
                             )
                         } else {
                             Text(
-                                text = "暂无规则", fontSize = 14.sp
+                                text = stringResource(R.string.no_rules), fontSize = 14.sp
                             )
                         }
                     }
                 } else {
                     Text(
-                        text = "本地无订阅文件,请刷新",
+                        text = stringResource(R.string.no_local_subscription_file_refresh_page),
                         maxLines = 1,
                         softWrap = false,
                         overflow = TextOverflow.Ellipsis

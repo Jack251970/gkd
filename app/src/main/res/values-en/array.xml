@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="authors">
+        <item>lisonge</item>
+        <item>lliioollcn</item>
+        <item>Jack251970</item>
+    </string-array>
+
+    <string-array name="update_time_options">
+        <item>Pause</item>
+        <item>Every Hour</item>
+        <item>Every 6 Hours</item>
+        <item>Every 12 Hours</item>
+        <item>Every Day</item>
+    </string-array>
+
+    <string-array name="dark_theme_options">
+        <item>Follow System</item>
+        <item>Enable</item>
+        <item>Disable</item>
+    </string-array>
+
+    <string-array name="enable_group_options">
+        <item>Follow Subscription</item>
+        <item>Default Enable</item>
+        <item>Default Disable</item>
+    </string-array>
+</resources>

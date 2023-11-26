@@ -6,13 +6,16 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import li.songe.gkd.R
 
 @Composable
 fun AuthCard(
@@ -34,7 +37,10 @@ fun AuthCard(
         }
         Spacer(modifier = Modifier.width(10.dp))
         OutlinedButton(onClick = onAuthClick) {
-            Text(text = "授权")
+            Text(
+                text = stringResource(R.string.authorization),
+                style= MaterialTheme.typography.bodyMedium
+            )
         }
     }
 }

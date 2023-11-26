@@ -1,0 +1,224 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="yes">Yes</string>
+    <string name="no">No</string>
+    <string name="confirm">Confirm</string>
+    <string name="cancel">Cancel</string>
+    <string name="on">On</string>
+    <string name="off">Off</string>
+    <string name="enable">Enable</string>
+    <string name="disable">Disable</string>
+
+    <!-- service -->
+    <!-- accessibility -->
+    <string name="accessibility_desc">Accessibility service based on rule matching.\nPowerful custom rules help you click to close various ads\nand perform advanced functions like custom shortcuts.</string>
+    <!-- snapshot -->
+    <string name="capture_label">Capture Snapshot</string>
+
+    <!-- about page -->
+    <string name="about">About</string>
+    <string name="app_desc">A custom screen-clicking software based on Accessibility + Advanced Selector + Subscription Rules.</string>
+    <string name="app_desc_appendix">Note: This version is a clone, customized and optimized based on the source project.</string>
+    <string name="and_divider">,&#160;</string>
+    <string name="project_author">Project Author:&#160;</string>
+    <string name="opensource_address">Open Source Address:&#160;</string>
+    <string name="original_opensource_address">Source Project</string>
+    <string name="forked_opensource_address">Cloned Project</string>
+    <string name="version_code">Version Code: %d</string>
+    <string name="version_name">Version Name: %s</string>
+    <string name="build_date">Build Date: %s</string>
+    <string name="build_type">Build Type: %s</string>
+
+    <!-- subscription manage page -->
+    <string name="subscription">Subscription</string>
+    <string name="view_rules">View Rules</string>
+    <string name="share_files">Share Files</string>
+    <string name="copy_link">Copy Link</string>
+    <string name="feedback">Feedback</string>
+    <string name="delete_subscription">Delete Subscription</string>
+    <string name="share_subscription_files">Share Subscription Files</string>
+    <string name="copy_success">Copy Success</string>
+    <string name="if_delete">Do you want to delete %s?</string>
+    <string name="import_default_subscription">Import Default Subscription</string>
+    <string name="import_other_subscription">Import Other Subscription</string>
+    <string name="enter_subscription_link">Enter Subscription Link</string>
+    <string name="illegal_link">Illegal Link</string>
+    <string name="link_exists">Link Already Exists</string>
+    <string name="add">Add</string>
+    <string name="subscription_details">Subscription Details</string>
+    <string name="name">Name: </string>
+    <string name="version">Version: </string>
+    <string name="author">Author: </string>
+    <string name="rule_info">Rules: %d apps/%d rule groups</string>
+    <string name="update">Update: </string>
+
+    <!-- control page -->
+    <string name="homepage">Homepage</string>
+    <string name="notification_permission">Notification Permission</string>
+    <string name="notification_permission_desc">Used to start background service and display service running status.</string>
+    <string name="accessibility_permission">Accessibility Permission</string>
+    <string name="accessibility_permission_desc">Used to obtain screen information and click on screen controls.</string>
+    <string name="enable_notification_permission_first">Please enable notification permission first.</string>
+    <string name="overlay_permission">Overlay Permission</string>
+    <string name="overlay_permission_desc">Used for background prompts, displaying save snapshot button, and other features.</string>
+    <string name="enable_service">Enable Service</string>
+    <string name="enable_service_desc">Keep the service running, matching screen target nodes based on subscription rules.</string>
+    <string name="click_history">Click History</string>
+    <string name="quickly_locate_disabling_rules_here">If a misoperation occurs, quickly locate disabling rules here.</string>
+    <string name="latest_clicking">Latest Click: %s</string>
+
+    <!-- settings page -->
+    <string name="settings">Settings</string>
+    <string name="hide_background">Hide in Background</string>
+    <string name="hide_background_desc">Hide this app in the recent tasks interface.</string>
+    <string name="accessibility_foreground">Accessibility Foreground</string>
+    <string name="accessibility_foreground_desc">Add a transparent foreground overlay for accessibility, closing it may cause it not to work.</string>
+    <string name="click_notification">Click Notification</string>
+    <string name="click_notification_desc">Show %s when clicking is triggered.</string>
+    <string name="enable_overlay_permission_first">Please enable overlay permission first.</string>
+    <string name="auto_update_subscription">Auto Update Subscription</string>
+    <string name="auto_update_app">Auto Update App</string>
+    <string name="auto_update_app_desc">Automatically check for new versions when the app is opened.</string>
+    <string name="check_update">Check Update</string>
+    <string name="checking_update">Checking for Update</string>
+    <string name="no_update">No Updates Available</string>
+    <string name="dark_mode">Dark Mode</string>
+    <string name="enable_rules">Enable Rules</string>
+    <string name="save_log">Save Log</string>
+    <string name="save_log_desc">Save logs for the last 7 days, occupying approximately 5MB of space.</string>
+    <string name="delete_success">Deletion Successful</string>
+    <string name="share_log">Share Log</string>
+    <string name="no_log">No Logs Available</string>
+    <string name="advanced_settings">Advanced Settings</string>
+    <string name="enter_prompt_text">Enter Prompt Text</string>
+    <string name="invoke_system_sharing">Invoke System Sharing</string>
+    <string name="generate_link">Generate Link (Requires VPN)</string>
+    <string name="upload_fail">Upload Failed</string>
+    <string name="uploading_file">Uploading File</string>
+    <string name="terminate_upload">Terminate Upload</string>
+    <string name="upload_success">Upload Completed</string>
+    <string name="copy">Copy</string>
+    <string name="follow_system">Follow System</string>
+
+    <!-- upgrade dialog -->
+    <string name="detect_new_version">New Version Detected</string>
+    <string name="download_new_version">Download Update</string>
+    <string name="downloading_new_version">Downloading Update</string>
+    <string name="stop_download">Stop Download</string>
+    <string name="download_success">Download Completed</string>
+    <string name="download_fail">Download Failed</string>
+    <string name="install">Install</string>
+
+    <!-- group item page -->
+    <string name="unknown_rule">Unknown Rule</string>
+    <string name="load_fail">Load Failed</string>
+
+    <!-- click log page -->
+    <string name="no_history">No Records Available</string>
+    <string name="view_rule_group">View Rule Group</string>
+    <string name="delete">Delete</string>
+    <string name="if_delete_all_click_history">Do you want to delete all click records?</string>
+
+    <!-- debug page -->
+    <string name="shizuku_authorization">Shizuku Authorization</string>
+    <string name="shizuku_not_running">Shizuku may not be running</string>
+    <string name="shizuku_mode">Shizuku Mode</string>
+    <string name="shizuku_mode_desc">Advanced running mode that can accurately identify interface activity IDs.</string>
+    <string name="http_service">HTTP Service</string>
+    <string name="http_service_desc">Enable HTTP service to transfer data within the same local network.</string>
+    <string name="http_service_port">HTTP Service Port - %d</string>
+    <string name="auto_clear_subscription_cache">Auto Clear Subscription Cache</string>
+    <string name="auto_clear_subscription_cache_desc">Clear memory subscriptions when the HTTP service is turned off.</string>
+    <string name="screenshot_service">Screenshot Service</string>
+    <string name="screenshot_service_desc">Screen capture is required for generating snapshots. Not needed on Android 11.</string>
+    <string name="overlay_service">Overlay Service</string>
+    <string name="overlay_service_desc">Show the screenshot button to allow users to actively save snapshots.</string>
+    <string name="volume_snapshot">Volume Snapshot</string>
+    <string name="volume_snapshot_desc">If the floating window button does not work, use volume changes to generate snapshots.</string>
+    <string name="hide_snapshot_status_bar">Hide Snapshot Status Bar</string>
+    <string name="hide_snapshot_status_bar_desc">Hide the top status bar height area in screenshots when saving snapshots.</string>
+    <string name="snapshot_history">Snapshot History</string>
+    <string name="enter_new_port">Enter New Port</string>
+    <string name="enter_new_port_desc">Enter any number between 5000 and 65535.</string>
+
+    <!-- snapshot page -->
+    <string name="view">View</string>
+    <string name="share">Share</string>
+    <string name="share_snapshot_file">Share Snapshot File</string>
+    <string name="save_screenshot_to_gallery">Save Screenshot to Gallery</string>
+    <string name="save_fail">Save Failed, no permission</string>
+    <string name="save_success">Save Successful</string>
+    <string name="replace_screenshot">Replace Screenshot (Remove Privacy)</string>
+    <string name="replace_fail">Replacement Failed, screenshot sizes are not consistent</string>
+    <string name="replace_success">Replacement Successful</string>
+    <string name="if_delete_all_snapshot_history">Do you want to delete all snapshot records?</string>
+
+    <!-- subscription page -->
+    <string name="enter_app_name">Enter App Name</string>
+    <string name="no_search_result">No Search Results</string>
+    <string name="subscription_no_rules">This subscription has no rules yet</string>
+    <string name="add_app_rule">Add App Rule</string>
+    <string name="enter_rules_add_if_exists">Enter rules\nAppend if the app rules already exist</string>
+    <string name="illegal_rule">Illegal Rule: %s</string>
+    <string name="cannot_add_blank_rule_group">Cannot add empty rule group</string>
+    <string name="cannot_add_blank_rule_group_name_first">Cannot add a blank named rule group, please name it first</string>
+    <string name="exist_rule_with_same_name">Rule with the same name already exists: %s</string>
+    <string name="add_success">Add Successful</string>
+    <string name="edit_local_app_rules">Edit Local App Rules</string>
+    <string name="enter_rules">Enter Rules</string>
+    <string name="cannot_edit_rule_id">Cannot edit rule ID</string>
+    <string name="update_success">Update Successful</string>
+
+    <!-- app item page -->
+    <string name="subscription_file_miss">Subscription File Missing</string>
+    <string name="rule_group_corrupt">Rule Group Corrupt</string>
+    <string name="rule_group_default_disable">This rule group is not enabled by default</string>
+    <string name="view_image">View Image</string>
+    <string name="copy_rule_group">Copy Rule Group</string>
+    <string name="edit">Edit</string>
+    <string name="edit_rule_group">Edit Rule Group</string>
+    <string name="enter_rule_group">Enter Rule Group</string>
+    <string name="rule_group_unchanged">Rule Unchanged</string>
+    <string name="cannot_change_rule_group_key">Cannot change rule group key</string>
+    <string name="illegal_rule_selector_illegal">Illegal Rule: Contains illegal selectors</string>
+    <string name="add_rule_group">Add Rule Group</string>
+    <string name="enter_rule_group_either_app_rule_or_single_rule_group">Enter Rule Group\nIt can be an app rule\nor a single rule group</string>
+    <string name="add_fail_inconsistent_id">Add Failed, inconsistent IDs</string>
+    <string name="add_fail_blank_rule_group">Add Failed, empty rule group</string>
+
+    <!-- homepage vm -->
+    <string name="local_subscription">Local Subscription</string>
+
+    <!-- control vm -->
+    <string name="app_rule_group_count">%d apps/%d rule groups</string>
+    <string name="no_rules">No Rules Yet</string>
+    <string name="click_count">/%d clicks</string>
+
+    <!-- subscription manage vm -->
+    <string name="subscription_link_exist">Subscription link already exists</string>
+    <string name="download_subscription_file_fail">Failed to download subscription file</string>
+    <string name="parse_subscription_file_fail">Failed to parse subscription file</string>
+    <string name="subscription_exist">Subscription already exists</string>
+    <string name="illegal_subscription_id">Illegal subscription ID: %d, negative IDs are for internal use only</string>
+    <string name="add_subscription_success">Successfully added subscription</string>
+    <string name="update_fail">Update Failed</string>
+    <string name="update_subscription_count">Update %d subscriptions</string>
+
+    <!-- subscription item card -->
+    <string name="local_source">Local Source</string>
+    <string name="trusted_source">Trusted Source</string>
+    <string name="unknown_source">Unknown Source</string>
+    <string name="no_local_subscription_file_refresh_page">No local subscription file, please refresh the page</string>
+
+    <!-- authorization card -->
+    <string name="authorization">Authorization</string>
+
+    <!-- time ext -->
+    <string name="time_ago_year">%d years ago</string>
+    <string name="time_ago_month">%d months ago</string>
+    <string name="time_ago_week">%d weeks ago</string>
+    <string name="time_ago_day">%d days ago</string>
+    <string name="time_ago_hour">%d hours ago</string>
+    <string name="time_ago_minute">%d minutes ago</string>
+    <string name="time_ago_just_now">just now</string>
+</resources>
