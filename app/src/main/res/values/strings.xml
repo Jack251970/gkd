@@ -187,8 +187,8 @@
     <string name="illegal_rule_selector_illegal">非法规则：存在非法选择器</string>
     <string name="add_rule_group">添加规则组</string>
     <string name="enter_rule_group_either_app_rule_or_single_rule_group">请输入规则组\n可以是APP规则\n也可以是单个规则组</string>
-    <string name="add_fail_inconsistent_id">id不一致,无法添加</string>
-    <string name="add_fail_blank_rule_group">不能添加空规则组</string>
+    <string name="add_fail_inconsistent_id">添加失败，id不一致</string>
+    <string name="add_fail_blank_rule_group">添加失败，空规则组</string>
 
     <!-- homepage vm -->
     <string name="local_subscription">本地订阅</string>
@@ -203,7 +203,7 @@
     <string name="download_subscription_file_fail">下载订阅文件失败</string>
     <string name="parse_subscription_file_fail">解析订阅文件失败</string>
     <string name="subscription_exist">订阅已存在</string>
-    <string name="illegal_subscription_id">非法订阅id：%d（负数id仅供内部使用）</string>
+    <string name="illegal_subscription_id">非法订阅id：%d，负数id仅供内部使用</string>
     <string name="add_subscription_success">成功添加订阅</string>
     <string name="update_fail">更新失败</string>
     <string name="update_subscription_count">更新%d条订阅</string>
