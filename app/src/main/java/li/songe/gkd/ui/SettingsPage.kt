@@ -276,7 +276,7 @@ fun SettingsPage() {
         })
         Divider()
 
-        SettingItem(title = stringResource(R.string.about) + stringResource(R.string.app_name), onClick = {
+        SettingItem(title = stringResource(R.string.about), onClick = {
             navController.navigate(AboutPageDestination)
         })
 
