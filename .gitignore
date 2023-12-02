@@ -18,3 +18,5 @@ local.properties
 .vscode
 /app/debug
 /app/release
+*.jks
+*.keystore

@@ -9,8 +9,8 @@ import kotlinx.coroutines.flow.stateIn
 import li.songe.gkd.R
 import li.songe.gkd.app
 import li.songe.gkd.db.DbSet
-import li.songe.gkd.util.appIdToRulesFlow
 import li.songe.gkd.util.appInfoCacheFlow
+import li.songe.gkd.util.appRuleFlow
 import li.songe.gkd.util.clickCountFlow
 import li.songe.gkd.util.subsIdToRawFlow
 import javax.inject.Inject
@@ -39,10 +39,10 @@ class ControlVm @Inject constructor() : ViewModel() {
         }
     }.stateIn(viewModelScope, SharingStarted.Eagerly, null)
 
-    val subsStatusFlow = combine(appIdToRulesFlow, clickCountFlow) { appIdToRules, clickCount ->
-        val appSize = appIdToRules.keys.size
+    val subsStatusFlow = combine(appRuleFlow, clickCountFlow) { appRule, clickCount ->
+        val appSize = appRule.visibleMap.keys.size
         val groupSize =
-            appIdToRules.values.sumOf { rules -> rules.map { r -> r.group.key }.toSet().size }
+            appRule.visibleMap.values.sumOf { rules -> rules.map { r -> r.group.key }.toSet().size }
         (if (groupSize > 0) {
             app.getString(R.string.app_rule_group_count, appSize, groupSize)
         } else {

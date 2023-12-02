@@ -49,6 +49,7 @@ class MainActivity : CompositionActivity({
 
     setContent {
         val navController = rememberNavController()
+
         AppTheme {
             UpgradeDialog()
             CompositionLocalProvider(
@@ -64,3 +65,7 @@ class MainActivity : CompositionActivity({
         }
     }
 })
+
+
+
+
