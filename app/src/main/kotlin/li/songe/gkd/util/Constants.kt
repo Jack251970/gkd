@@ -10,6 +10,9 @@ const val DEFAULT_SUBS_UPDATE_URL =
 const val UPDATE_URL = "https://registry.npmmirror.com/@gkd-kit/app/latest/files/index.json"
 const val FORKED_UPDATE_URL = "https://api.github.com/repos/Jack251970/gkd/releases/latest"
 
+const val SERVER_SCRIPT_URL =
+    "https://registry-direct.npmmirror.com/@gkd-kit/config/latest/files/dist/server.js"
+
 const val REPOSITORY_URL = "https://github.com/gkd-kit/gkd"
 const val FORKED_REPOSITORY_URL = "https://github.com/Jack251970/gkd"
 
