@@ -267,8 +267,8 @@ fun DebugPage() {
 
             Divider()
             TextSwitch(
-                name = "",
-                desc = "",
+                name = stringResource(R.string.screenshot_and_snapshot),
+                desc = stringResource(R.string.screenshot_and_snapshot_desc),
                 checked = store.captureScreenshot
             ) {
                 updateStorage(
