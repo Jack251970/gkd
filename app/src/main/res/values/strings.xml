@@ -128,9 +128,12 @@
     <string name="shizuku_not_running">Shizuku可能没有运行</string>
     <string name="shizuku_mode">Shizuku模式</string>
     <string name="shizuku_mode_desc">高级运行模式，能更准确识别界面活动ID</string>
+    <string name="shizuku_validation_failed">Shizuku方法校验失败</string>
+    <string name="match_unknown_apps">匹配未知应用</string>
+    <string name="match_unknown_apps_desc">匹配不在安装列表中（其它用户空间）的应用</string>
     <string name="http_service">HTTP服务</string>
     <string name="http_service_desc">开启HTTP服务，以便在同一局域网下传递数据</string>
-    <string name="http_service_port">HTTP服务端口-%d</string>
+    <string name="http_service_port">HTTP服务端口：%d</string>
     <string name="auto_clear_subscription_cache">自动清除订阅缓存</string>
     <string name="auto_clear_subscription_cache_desc">当HTTP服务关闭时，清除内存订阅</string>
     <string name="screenshot_service">截屏服务</string>
@@ -139,6 +142,8 @@
     <string name="overlay_service_desc">显示截屏按钮，便于用户快速保存快照</string>
     <string name="volume_snapshot">音量快照</string>
     <string name="volume_snapshot_desc">若悬浮窗按钮不工作，可使用音量变化来生成快照</string>
+    <string name="screenshot_and_snapshot">截屏快照</string>
+    <string name="screenshot_and_snapshot_desc">截屏时保存快照，仍需手动替换快照图片（仅支持MIUI14）</string>
     <string name="hide_snapshot_status_bar">隐藏快照状态栏</string>
     <string name="hide_snapshot_status_bar_desc">当保存快照时，隐藏截图里的顶部状态栏高度区域</string>
     <string name="snapshot_history">快照记录</string>

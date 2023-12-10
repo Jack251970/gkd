@@ -124,9 +124,12 @@
     <string name="shizuku_not_running">Shizuku may not be running</string>
     <string name="shizuku_mode">Shizuku Mode</string>
     <string name="shizuku_mode_desc">Advanced running mode that can accurately identify interface activity IDs.</string>
+    <string name="shizuku_validation_failed">Shizuku method validation failed</string>
+    <string name="match_unknown_apps">Match Unknown Apps</string>
+    <string name="match_unknown_apps_desc">Matches apps that are not in the installation list (other user spaces).</string>
     <string name="http_service">HTTP Service</string>
     <string name="http_service_desc">Enable HTTP service to transfer data within the same local network.</string>
-    <string name="http_service_port">HTTP Service Port - %d</string>
+    <string name="http_service_port">HTTP Service Port: %d</string>
     <string name="auto_clear_subscription_cache">Auto Clear Subscription Cache</string>
     <string name="auto_clear_subscription_cache_desc">Clear memory of subscriptions when the HTTP service is turned off.</string>
     <string name="screenshot_service">Screenshot Service</string>
@@ -135,6 +138,8 @@
     <string name="overlay_service_desc">Show the screenshot button to allow users to save snapshots instantly.</string>
     <string name="volume_snapshot">Volume Snapshot</string>
     <string name="volume_snapshot_desc">If the floating window button does not work, use volume changes to generate snapshots.</string>
+    <string name="screenshot_and_snapshot">Snapshot Screenshots</string>
+    <string name="screenshot_and_snapshot_desc">Save the snapshot when taking a screenshot, and still need to manually replace the snapshot image (only support MIUI14).</string>
     <string name="hide_snapshot_status_bar">Hide Snapshot Status Bar</string>
     <string name="hide_snapshot_status_bar_desc">Hide the top status bar height area in screenshots when saving snapshots.</string>
     <string name="snapshot_history">Snapshot History</string>

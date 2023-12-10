@@ -64,6 +64,7 @@ import li.songe.gkd.ui.destinations.AppItemPageDestination
 import li.songe.gkd.util.LocalNavController
 import li.songe.gkd.util.ProfileTransitions
 import li.songe.gkd.util.appInfoCacheFlow
+import li.songe.gkd.util.encodeToJson5String
 import li.songe.gkd.util.json
 import li.songe.gkd.util.launchAsFn
 import li.songe.gkd.util.launchTry
@@ -322,7 +323,7 @@ fun SubsPage(
     val editAppRawVal = editAppRaw
     if (editAppRawVal != null && subsItemVal != null && subsRaw != null) {
         var source by remember {
-            mutableStateOf(json.encodeToString(editAppRawVal))
+            mutableStateOf(json.encodeToJson5String(editAppRawVal))
         }
         AlertDialog(title = { Text(text = stringResource(R.string.edit_local_app_rules)) }, text = {
             OutlinedTextField(
@@ -383,9 +384,7 @@ fun SubsPage(
                     Text(text = stringResource(R.string.copy), modifier = Modifier
                         .clickable {
                             ClipboardUtils.copyText(
-                                json.encodeToString(
-                                    menuAppRawVal
-                                )
+                                json.encodeToJson5String(menuAppRawVal)
                             )
                             ToastUtils.showShort(app.getString(R.string.delete_success))
                             menuAppRaw = null

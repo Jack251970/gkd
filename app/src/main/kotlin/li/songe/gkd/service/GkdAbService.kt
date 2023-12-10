@@ -13,6 +13,7 @@ import android.view.accessibility.AccessibilityEvent
 import com.blankj.utilcode.util.LogUtils
 import com.blankj.utilcode.util.ServiceUtils
 import com.blankj.utilcode.util.ToastUtils
+import io.ktor.client.call.body
 import io.ktor.client.request.get
 import io.ktor.client.statement.bodyAsText
 import kotlinx.coroutines.Dispatchers
@@ -33,13 +34,14 @@ import li.songe.gkd.data.ActionResult
 import li.songe.gkd.data.GkdAction
 import li.songe.gkd.data.NodeInfo
 import li.songe.gkd.data.RpcError
+import li.songe.gkd.data.SubsVersion
 import li.songe.gkd.data.SubscriptionRaw
 import li.songe.gkd.data.getActionFc
 import li.songe.gkd.db.DbSet
+import li.songe.gkd.debug.SnapshotExt
 import li.songe.gkd.shizuku.useSafeGetTasksFc
 import li.songe.gkd.util.client
 import li.songe.gkd.util.launchTry
-import li.songe.gkd.util.launchWhile
 import li.songe.gkd.util.map
 import li.songe.gkd.util.storeFlow
 import li.songe.gkd.util.subsIdToRawFlow
@@ -54,6 +56,8 @@ class GkdAbService : CompositionAbService({
     useLifeCycleLog()
 
     val context = this as GkdAbService
+
+    context.resources
 
     val scope = useScope()
 
@@ -145,9 +149,12 @@ class GkdAbService : CompositionAbService({
             newQueryTask()
         }
     }
+    val skipAppIds = setOf("com.android.systemui")
     onAccessibilityEvent { event ->
-        if (event == null) return@onAccessibilityEvent
+        if (event == null || event.packageName == null) return@onAccessibilityEvent
         if (!(event.eventType == AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED || event.eventType == AccessibilityEvent.TYPE_WINDOW_CONTENT_CHANGED)) return@onAccessibilityEvent
+
+        if (skipAppIds.any { id -> id.contentEquals(event.packageName) }) return@onAccessibilityEvent
 
         if (event.eventType == AccessibilityEvent.TYPE_WINDOW_CONTENT_CHANGED) {
             if (event.eventTime - appChangeTime > 5_000) { // app 启动 5s 内关闭限制
@@ -228,20 +235,31 @@ class GkdAbService : CompositionAbService({
         }
     }
 
-
-    var lastUpdateSubsTime = 0L
-    scope.launchWhile(Dispatchers.IO) { // 自动从网络更新订阅文件
-        if (storeFlow.value.updateSubsInterval > 0 && System.currentTimeMillis() - lastUpdateSubsTime < storeFlow.value.updateSubsInterval) {
+    fun checkSubsUpdate() {
+        scope.launchTry(Dispatchers.IO) { // 自动从网络更新订阅文件
+            LogUtils.d("开始自动检测更新")
             subsItemsFlow.value.forEach { subsItem ->
                 if (subsItem.updateUrl == null) return@forEach
                 try {
+                    val oldSubsRaw = subsIdToRawFlow.value[subsItem.id]
+                    if (oldSubsRaw?.checkUpdateUrl != null) {
+                        try {
+                            val subsVersion =
+                                client.get(oldSubsRaw.checkUpdateUrl).body<SubsVersion>()
+                            LogUtils.d("快速检测更新成功", subsVersion)
+                            if (subsVersion.id == oldSubsRaw.id && subsVersion.version <= oldSubsRaw.version) {
+                                return@forEach
+                            }
+                        } catch (e: Exception) {
+                            LogUtils.d("快速检测更新失败", subsItem, e)
+                        }
+                    }
                     val newSubsRaw = SubscriptionRaw.parse(
                         client.get(subsItem.updateUrl).bodyAsText()
                     )
                     if (newSubsRaw.id != subsItem.id) {
                         return@forEach
                     }
-                    val oldSubsRaw = subsIdToRawFlow.value[subsItem.id]
                     if (oldSubsRaw != null && newSubsRaw.version <= oldSubsRaw.version) {
                         return@forEach
                     }
@@ -258,12 +276,23 @@ class GkdAbService : CompositionAbService({
                     LogUtils.d("更新磁盘订阅文件:${newSubsRaw.name}")
                 } catch (e: Exception) {
                     e.printStackTrace()
-                    LogUtils.d("更新失败", e)
+                    LogUtils.d("检测更新失败", e)
                 }
             }
-            lastUpdateSubsTime = System.currentTimeMillis()
         }
-        delay(30 * 60_000) // 每 30 分钟检查一次
+    }
+
+    var lastUpdateSubsTime = 0L
+    onAccessibilityEvent {
+        if (it?.eventType == AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED) {// 筛选降低判断频率
+            // 借助 无障碍事件 触发自动检测更新
+            val i = storeFlow.value.updateSubsInterval
+            val t = System.currentTimeMillis()
+            if (i > 0 && t - lastUpdateSubsTime > i.coerceAtLeast(60 * 60_000)) {
+                lastUpdateSubsTime = t
+                checkSubsUpdate()
+            }
+        }
     }
 
     scope.launch(Dispatchers.IO) {
@@ -319,6 +348,24 @@ class GkdAbService : CompositionAbService({
     onDestroy {
         if (aliveView != null) {
             wm.removeView(aliveView)
+        }
+    }
+
+    onAccessibilityEvent { e ->
+        if (!storeFlow.value.captureScreenshot) return@onAccessibilityEvent
+        e ?: return@onAccessibilityEvent
+        val appId = e.packageName ?: return@onAccessibilityEvent
+        val appCls = e.className ?: return@onAccessibilityEvent
+        if (appId.contentEquals("com.miui.screenshot") &&
+            e.eventType == AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED &&
+            !e.isFullScreen &&
+            appCls.contentEquals("android.widget.RelativeLayout") &&
+            e.text.firstOrNull()?.contentEquals("截屏缩略图") == true // [截屏缩略图, 截长屏, 发送]
+        ) {
+            LogUtils.d("captureScreenshot", e)
+            scope.launchTry(Dispatchers.IO) {
+                SnapshotExt.captureSnapshot(skipScreenshot = true)
+            }
         }
     }
 }) {

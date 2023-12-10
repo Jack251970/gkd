@@ -38,6 +38,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat
+import com.blankj.utilcode.util.LogUtils
 import com.blankj.utilcode.util.ToastUtils
 import com.dylanc.activityresult.launcher.launchForResult
 import com.ramcosta.composedestinations.annotation.Destination
@@ -110,6 +111,7 @@ fun DebugPage() {
                         try {
                             Shizuku.requestPermission(Activity.RESULT_OK)
                         } catch (e: Exception) {
+                            LogUtils.d("Shizuku授权错误", e)
                             ToastUtils.showShort(app.getString(R.string.shizuku_not_running))
                         }
                     })
@@ -121,7 +123,7 @@ fun DebugPage() {
                     onCheckedChange = { enableShizuku ->
                         if (enableShizuku) {
                             appScope.launchTry(Dispatchers.IO) {
-                                // 检验方法是否适配, 再允许使用 shizuku
+                                // 校验方法是否适配, 再允许使用 shizuku
                                 val tasks = newActivityTaskManager()?.safeGetTasks()?.firstOrNull()
                                 if (tasks != null) {
                                     updateStorage(
@@ -129,6 +131,8 @@ fun DebugPage() {
                                             enableShizuku = true
                                         )
                                     )
+                                } else {
+                                    ToastUtils.showShort(app.getString(R.string.shizuku_validation_failed))
                                 }
                             }
                         } else {
@@ -144,8 +148,8 @@ fun DebugPage() {
             }
 
             TextSwitch(
-                name = "匹配未知应用",
-                desc = "匹配不在安装列表中(其它用户空间)的应用",
+                name = stringResource(R.string.match_unknown_apps),
+                desc = stringResource(R.string.match_unknown_apps_desc),
                 checked = store.matchUnknownApp
             ) {
                 updateStorage(
@@ -260,6 +264,20 @@ fun DebugPage() {
                     )
                 )
             }
+
+            Divider()
+            TextSwitch(
+                name = "",
+                desc = "",
+                checked = store.captureScreenshot
+            ) {
+                updateStorage(
+                    storeFlow, store.copy(
+                        captureScreenshot = it
+                    )
+                )
+            }
+
             Divider()
             TextSwitch(
                 name = stringResource(R.string.hide_snapshot_status_bar),
