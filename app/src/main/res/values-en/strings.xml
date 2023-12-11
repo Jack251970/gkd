@@ -82,6 +82,7 @@
     <string name="check_update">Check Update</string>
     <string name="checking_update">Checking for Update</string>
     <string name="no_update">No Updates Available</string>
+    <string name="update_from_source_project">This update is from the source project, and features from the forked project will be lost after installation</string>
     <string name="dark_mode">Dark Mode</string>
     <string name="enable_rules">Enable Rules</string>
     <string name="save_log">Save Log</string>

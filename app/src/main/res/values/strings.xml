@@ -86,6 +86,7 @@
     <string name="check_update">检查更新</string>
     <string name="checking_update">检查更新中</string>
     <string name="no_update">暂无更新</string>
+    <string name="update_from_source_project">更新来自源项目，安装后将会丢失来自克隆项目的特性</string>
     <string name="dark_mode">深色模式</string>
     <string name="enable_rules">启用规则</string>
     <string name="save_log">保存日志</string>

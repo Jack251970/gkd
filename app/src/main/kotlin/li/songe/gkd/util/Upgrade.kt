@@ -207,11 +207,12 @@ data class Reactions(
 )
 
 data class NewVersionAsset(
-    // val versionCode: Int,
+    val versionCode: Int,
     val versionName: String,
     val downloadUrl: String,
     val versionLogs: List<VersionLog> = emptyList(),
     val fileSize: Long? = null,
+    val fromSource: Boolean,
 )
 
 val checkUpdatingFlow by lazy { MutableStateFlow(false) }
@@ -229,26 +230,44 @@ suspend fun checkUpdate(): NewVersionAsset? {
                 if (akpAsset != null) {
                     val newVersion = client.get(UPDATE_URL).body<NewVersion>()
                     val newVersionAsset = NewVersionAsset(
+                        versionCode = BuildConfig.VERSION_CODE,
                         versionName = versionName,
                         downloadUrl = akpAsset.browserDownloadUrl,
                         versionLogs = newVersion.versionLogs
                             .takeWhile { v -> compareVersions(v.name, BuildConfig.VERSION_NAME) > 0 },
                         fileSize = akpAsset.size.toLong(),
+                        fromSource = false,
                     )
                     newVersionFlow.value = newVersionAsset
                     return newVersionAsset
                 }
                 else
                 {
-                    Log.d("Upgrade", "Found new version but no apk")
+                    Log.d("Upgrade", "Found new github version but no apk")
                 }
             }
             else
             {
-                Log.d("Upgrade", "Found new version but no assets")
+                Log.d("Upgrade", "Found new github version but no assets")
             }
         } else {
-            Log.d("Upgrade", "Found no new version")
+            Log.d("Upgrade", "Found no new github version")
+        }
+        val newVersion = client.get(UPDATE_URL).body<NewVersion>()
+        if (newVersion.versionCode > BuildConfig.VERSION_CODE) {
+            val newVersionAsset = NewVersionAsset(
+                versionCode = newVersion.versionCode,
+                versionName = newVersion.versionName,
+                downloadUrl = newVersion.downloadUrl,
+                versionLogs = newVersion.versionLogs
+                    .takeWhile { v -> v.code > BuildConfig.VERSION_CODE },
+                fileSize = newVersion.fileSize,
+                fromSource = true,
+            )
+            newVersionFlow.value = newVersionAsset
+            return newVersionAsset
+        } else {
+            Log.d("Upgrade", "no new version")
         }
     } finally {
         checkUpdatingFlow.value = false
