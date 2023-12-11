@@ -12,6 +12,9 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -336,20 +339,22 @@ fun startDownload(newVersion: NewVersionAsset) {
 @Composable
 fun UpgradeDialog() {
     val newVersion by newVersionFlow.collectAsState()
+    var fromSourceDialog by remember { mutableStateOf(false) }
     newVersion?.let { newVersionVal ->
 
         AlertDialog(title = {
             Text(text = stringResource(R.string.detect_new_version))
         }, text = {
-            Text(text = "v${BuildConfig.VERSION_NAME} -> v${newVersionVal.versionName}\n\n${
-                if (newVersionVal.versionLogs.size > 1) {
-                    newVersionVal.versionLogs.joinToString("\n\n") { v -> "v${v.name}\n${v.desc}" }
-                } else if (newVersionVal.versionLogs.isNotEmpty()) {
-                    newVersionVal.versionLogs.first().desc
-                } else {
-                    ""
-                }
-            }".trimEnd(),
+            Text(text = ((if (newVersionVal.fromSource) "${stringResource(R.string.update_from_source_project)}\n\n" else "") +
+                    "v${BuildConfig.VERSION_NAME} -> v${newVersionVal.versionName}\n\n${ 
+                        if (newVersionVal.versionLogs.size > 1) { 
+                            newVersionVal.versionLogs.joinToString("\n\n") { v -> "v${v.name}\n${v.desc}" } 
+                        } else if (newVersionVal.versionLogs.isNotEmpty()) {
+                            newVersionVal.versionLogs.first().desc 
+                        } else { 
+                            ""
+                        }
+            }").trimEnd(),
                 modifier = Modifier
                     .fillMaxWidth()
                     .heightIn(max = 400.dp)
@@ -357,8 +362,12 @@ fun UpgradeDialog() {
 
         }, onDismissRequest = { }, confirmButton = {
             TextButton(onClick = {
-                newVersionFlow.value = null
-                startDownload(newVersionVal)
+                if (newVersionVal.fromSource){
+                    fromSourceDialog = true
+                } else {
+                    newVersionFlow.value = null
+                    startDownload(newVersionVal)
+                }
             }) {
                 Text(text = stringResource(R.string.download_new_version))
             }
@@ -367,10 +376,32 @@ fun UpgradeDialog() {
                 Text(text = stringResource(R.string.cancel))
             }
         })
+
+        if (fromSourceDialog){
+            AlertDialog(
+                title = { Text(text = stringResource(R.string.waning)) },
+                text = { Text(text = stringResource(R.string.update_from_source_project)) },
+                onDismissRequest = { }, confirmButton = {
+                    TextButton(onClick = {
+                        newVersionFlow.value = null
+                        startDownload(newVersionVal)
+                    }) {
+                        Text(text = stringResource(R.string.confirm))
+                    }
+                }, dismissButton = {
+                    TextButton(onClick = {
+                        fromSourceDialog = false
+                    }) {
+                        Text(text = stringResource(R.string.cancel))
+                    }
+                }
+            )
+        }
     }
 
     val downloadStatus by downloadStatusFlow.collectAsState()
     downloadStatus?.let { downloadStatusVal ->
+        fromSourceDialog = false
         when (downloadStatusVal) {
             is LoadStatus.Loading -> {
                 AlertDialog(

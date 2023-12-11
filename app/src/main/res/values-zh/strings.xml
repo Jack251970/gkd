@@ -8,6 +8,7 @@
     <string name="off">关闭</string>
     <string name="enable">启用</string>
     <string name="disable">禁用</string>
+    <string name="waning">警告</string>
 
     <!-- service -->
     <!-- accessibility -->
@@ -85,7 +86,6 @@
     <string name="check_update">检查更新</string>
     <string name="checking_update">检查更新中</string>
     <string name="no_update">暂无更新</string>
-    <string name="update_from_source_project">更新来自源项目，安装后将会丢失来自克隆项目的特性</string>
     <string name="dark_mode">深色模式</string>
     <string name="enable_rules">启用规则</string>
     <string name="save_log">保存日志</string>
@@ -107,6 +107,8 @@
     <!-- upgrade dialog -->
     <string name="detect_new_version">检测到新版本</string>
     <string name="download_new_version">下载更新</string>
+    <string name="update_from_source_project">注意：本更新来自源项目，如无特殊需求请勿安装。</string>
+    <string name="note_install_update_from_source_project">安装本更新后将无法再收到克隆项目的更新。同时，来自克隆项目的特性也将丢失，例如英文的显示支持，部分界面的交互优化等。</string>
     <string name="downloading_new_version">下载更新中</string>
     <string name="stop_download">终止下载</string>
     <string name="download_success">下载完成</string>

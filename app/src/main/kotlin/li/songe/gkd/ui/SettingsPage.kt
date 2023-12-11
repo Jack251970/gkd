@@ -188,10 +188,6 @@ fun SettingsPage() {
                 val newVersion = checkUpdate()
                 if (newVersion == null) {
                     ToastUtils.showShort(context.getString(R.string.no_update))
-                } else {
-                    if (newVersion.fromSource){
-                        ToastUtils.showLong(context.getString(R.string.update_from_source_project))
-                    }
                 }
             }
         })

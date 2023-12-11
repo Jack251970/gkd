@@ -8,6 +8,7 @@
     <string name="off">Off</string>
     <string name="enable">Enable</string>
     <string name="disable">Disable</string>
+    <string name="waning">Warning</string>
 
     <!-- service -->
     <!-- accessibility -->
@@ -82,7 +83,6 @@
     <string name="check_update">Check Update</string>
     <string name="checking_update">Checking for Update</string>
     <string name="no_update">No Updates Available</string>
-    <string name="update_from_source_project">This update is from the source project, and features from the forked project will be lost after installation</string>
     <string name="dark_mode">Dark Mode</string>
     <string name="enable_rules">Enable Rules</string>
     <string name="save_log">Save Log</string>
@@ -104,6 +104,8 @@
     <!-- upgrade dialog -->
     <string name="detect_new_version">Detect New Version</string>
     <string name="download_new_version">Download Update</string>
+    <string name="update_from_source_project">Note: This update is from the source project, please do not install it unless you have special requirements.</string>
+    <string name="note_install_update_from_source_project">Once you have installed this update, you will no longer be able to receive updates for the cloned project. At the same time, features from the cloned project will also be lost, such as display support in English, interactive optimization of some interfaces, etc.</string>
     <string name="downloading_new_version">Downloading Update</string>
     <string name="stop_download">Stop Download</string>
     <string name="download_success">Download Completed</string>
