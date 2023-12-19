@@ -22,7 +22,7 @@
 
     <string-array name="enable_group_options">
         <item>Follow Subscription</item>
-        <item>Default Enable</item>
-        <item>Default Disable</item>
+        <item>Enable All</item>
+        <item>Disable All</item>
     </string-array>
 </resources>

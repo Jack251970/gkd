@@ -22,7 +22,7 @@
 
     <string-array name="enable_group_options">
         <item>跟随订阅</item>
-        <item>默认启用</item>
-        <item>默认关闭</item>
+        <item>全部启用</item>
+        <item>全部关闭</item>
     </string-array>
 </resources>

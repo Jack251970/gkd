@@ -85,9 +85,6 @@ fun SettingsPage() {
     var showEnableDarkThemeDlg by remember {
         mutableStateOf(false)
     }
-    var showEnableGroupDlg by remember {
-        mutableStateOf(false)
-    }
     var showToastInputDlg by remember {
         mutableStateOf(false)
     }
@@ -100,7 +97,9 @@ fun SettingsPage() {
 
 
     Column(
-        modifier = Modifier.verticalScroll(state = rememberScrollState())
+        modifier = Modifier.verticalScroll(
+            state = rememberScrollState()
+        )
     ) {
         TextSwitch(name = stringResource(R.string.hide_background),
             desc = stringResource(R.string.hide_background_desc),
@@ -184,13 +183,13 @@ fun SettingsPage() {
             stringResource(R.string.checking_update) else stringResource(R.string.check_update),
             onClick = {
                 appScope.launchTry {
-                if (checkUpdatingFlow.value) return@launchTry
-                val newVersion = checkUpdate()
-                if (newVersion == null) {
-                    ToastUtils.showShort(context.getString(R.string.no_update))
+                    if (checkUpdatingFlow.value) return@launchTry
+                    val newVersion = checkUpdate()
+                    if (newVersion == null) {
+                        ToastUtils.showShort(context.getString(R.string.no_update))
+                    }
                 }
-            }
-        })
+            })
         Divider()
 
         Row(modifier = Modifier
@@ -207,27 +206,6 @@ fun SettingsPage() {
                 Text(
                     text = darkThemeRadioOptions.find { it.second == store.enableDarkTheme }?.first
                         ?: store.enableDarkTheme.toString(), fontSize = 14.sp
-                )
-                Icon(
-                    imageVector = Icons.Default.KeyboardArrowRight, contentDescription = "more"
-                )
-            }
-        }
-        Divider()
-        Row(modifier = Modifier
-            .clickable {
-                showEnableGroupDlg = true
-            }
-            .padding(10.dp, 15.dp), verticalAlignment = Alignment.CenterVertically) {
-            Text(
-                modifier = Modifier.weight(1f), text = stringResource(R.string.enable_rules), fontSize = 18.sp
-            )
-            Row(
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(
-                    text = enableGroupRadioOptions.find { it.second == store.enableGroup }?.first
-                        ?: store.enableGroup.toString(), fontSize = 14.sp
                 )
                 Icon(
                     imageVector = Icons.Default.KeyboardArrowRight, contentDescription = "more"
@@ -356,43 +334,6 @@ fun SettingsPage() {
                                         storeFlow.value.copy(enableDarkTheme = option.second)
                                     )
                                 })
-                            Text(
-                                text = option.first, modifier = Modifier.padding(start = 16.dp)
-                            )
-                        }
-                    }
-                }
-            }
-        }
-    }
-    if (showEnableGroupDlg) {
-        Dialog(onDismissRequest = { showEnableGroupDlg = false }) {
-            Card(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp),
-                shape = RoundedCornerShape(16.dp),
-            ) {
-                Column {
-                    enableGroupRadioOptions.forEach { option ->
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .selectable(selected = (option.second == store.enableGroup),
-                                    onClick = {
-                                        updateStorage(
-                                            storeFlow,
-                                            storeFlow.value.copy(enableGroup = option.second)
-                                        )
-                                    })
-                                .padding(horizontal = 16.dp)
-                        ) {
-                            RadioButton(selected = (option.second == store.enableGroup), onClick = {
-                                updateStorage(
-                                    storeFlow, storeFlow.value.copy(enableGroup = option.second)
-                                )
-                            })
                             Text(
                                 text = option.first, modifier = Modifier.padding(start = 16.dp)
                             )

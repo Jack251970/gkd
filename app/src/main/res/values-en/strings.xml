@@ -215,7 +215,7 @@
     <string name="local_source">Local Source</string>
     <string name="trusted_source">Trusted Source</string>
     <string name="unknown_source">Unknown Source</string>
-    <string name="no_local_subscription_file_refresh_page">No local subscription file, please refresh the page</string>
+    <string name="no_local_subscription_file_refresh_page">No local subscription file, please scroll down to refresh the page</string>
 
     <!-- authorization card -->
     <string name="authorization">Auth</string>
