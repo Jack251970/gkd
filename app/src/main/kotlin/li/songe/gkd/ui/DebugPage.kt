@@ -5,9 +5,12 @@ import android.content.Context
 import android.content.Intent
 import android.media.projection.MediaProjectionManager
 import android.provider.Settings
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
@@ -36,7 +39,6 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
-import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat
 import com.blankj.utilcode.util.LogUtils
 import com.blankj.utilcode.util.ToastUtils
@@ -63,6 +65,9 @@ import li.songe.gkd.util.Ext
 import li.songe.gkd.util.LocalLauncher
 import li.songe.gkd.util.LocalNavController
 import li.songe.gkd.util.ProfileTransitions
+import li.songe.gkd.util.authActionFlow
+import li.songe.gkd.util.canDrawOverlaysAuthAction
+import li.songe.gkd.util.checkOrRequestNotifPermission
 import li.songe.gkd.util.launchAsFn
 import li.songe.gkd.util.launchTry
 import li.songe.gkd.util.navigate
@@ -147,30 +152,16 @@ fun DebugPage() {
                 Divider()
             }
 
-            TextSwitch(
-                name = stringResource(R.string.match_unknown_apps),
-                desc = stringResource(R.string.match_unknown_apps_desc),
-                checked = store.matchUnknownApp
-            ) {
-                updateStorage(
-                    storeFlow, store.copy(
-                        matchUnknownApp = it
-                    )
-                )
-            }
-            Divider()
-
-            val httpServerRunning by usePollState { HttpService.isRunning() }
+            val httpServerRunning by HttpService.isRunning.collectAsState()
             TextSwitch(
                 name = stringResource(R.string.http_service),
-                desc = stringResource(R.string.http_service_desc) + if (httpServerRunning) "\n${
+                desc = if (httpServerRunning) stringResource(R.string.http_service_desc1) + "\n${
                     Ext.getIpAddressInLocalNetwork()
-                        .map { host -> "http://${host}:${store.httpServerPort}" }.joinToString(",")
-                }" else "",
+                        .map { host -> "http://${host}:${store.httpServerPort}" }.joinToString("\n")
+                }" else stringResource(R.string.http_service_desc2),
                 checked = httpServerRunning
             ) {
-                if (!NotificationManagerCompat.from(context).areNotificationsEnabled()) {
-                    ToastUtils.showShort(app.getString(R.string.enable_notification_permission_first))
+                if (!checkOrRequestNotifPermission(context)) {
                     return@TextSwitch
                 }
                 if (it) {
@@ -182,8 +173,7 @@ fun DebugPage() {
             Divider()
 
             SettingItem(
-                title = stringResource(R.string.http_service_port, store.httpServerPort),
-                imageVector = Icons.Default.Edit
+                title = stringResource(R.string.http_service_port, store.httpServerPort), imageVector = Icons.Default.Edit
             ) {
                 showPortDlg = true
             }
@@ -202,15 +192,18 @@ fun DebugPage() {
             }
             Divider()
 
-            // android 11 以上可以使用无障碍服务获取屏幕截图
-            // Build.VERSION.SDK_INT < Build.VERSION_CODES.R
-            val screenshotRunning by usePollState { ScreenshotService.isRunning() }
-            TextSwitch(name = stringResource(R.string.screenshot_service),
+            SettingItem(title = stringResource(R.string.snapshot_history), onClick = {
+                navController.navigate(SnapshotPageDestination)
+            })
+            Divider()
+
+            val screenshotRunning by ScreenshotService.isRunning.collectAsState()
+            TextSwitch(
+                name = stringResource(R.string.screenshot_service),
                 desc = stringResource(R.string.screenshot_service_desc),
                 checked = screenshotRunning,
                 onCheckedChange = appScope.launchAsFn<Boolean> {
-                    if (!NotificationManagerCompat.from(context).areNotificationsEnabled()) {
-                        ToastUtils.showShort(app.getString(R.string.enable_notification_permission_first))
+                    if (!checkOrRequestNotifPermission(context)) {
                         return@launchAsFn
                     }
                     if (it) {
@@ -227,26 +220,21 @@ fun DebugPage() {
                 })
             Divider()
 
-
-            val floatingRunning by usePollState {
-                FloatingService.isRunning()
-            }
+            val floatingRunning by FloatingService.isRunning.collectAsState()
             TextSwitch(
                 name = stringResource(R.string.overlay_service),
                 desc = stringResource(R.string.overlay_service_desc),
                 checked = floatingRunning
             ) {
-                if (!NotificationManagerCompat.from(context).areNotificationsEnabled()) {
-                    ToastUtils.showShort(app.getString(R.string.enable_notification_permission_first))
+                if (!checkOrRequestNotifPermission(context)) {
                     return@TextSwitch
                 }
-
                 if (it) {
                     if (Settings.canDrawOverlays(context)) {
                         val intent = Intent(context, FloatingService::class.java)
                         ContextCompat.startForegroundService(context, intent)
                     } else {
-                        ToastUtils.showShort(app.getString(R.string.enable_overlay_permission_first))
+                        authActionFlow.value = canDrawOverlaysAuthAction
                     }
                 } else {
                     FloatingService.stop(context)
@@ -290,11 +278,8 @@ fun DebugPage() {
                     )
                 )
             }
-            Divider()
 
-            SettingItem(title = stringResource(R.string.snapshot_history), onClick = {
-                navController.navigate(SnapshotPageDestination)
-            })
+            Spacer(modifier = Modifier.height(40.dp))
         }
     })
 

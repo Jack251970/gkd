@@ -10,6 +10,9 @@
     <string name="disable">Disable</string>
     <string name="waning">Warning</string>
 
+    <!-- store -->
+    <string name="skip">Skip</string>
+
     <!-- service -->
     <!-- accessibility -->
     <string name="accessibility_desc">Accessibility service based on rule matching.\nPowerful custom rules help you click to close various ads\nand perform advanced functions like custom shortcuts.</string>
@@ -19,7 +22,7 @@
     <!-- about page -->
     <string name="about">About</string>
     <string name="app_desc">A custom screen-clicking software based on accessibility, advanced selector and subscription rules.</string>
-    <string name="app_desc_appendix">Note: This version is a clone, customized and optimized based on the source project.</string>
+    <string name="app_desc_appendix">Note: This version is a forked, customized and optimized based on the source project.</string>
     <string name="and_divider">,&#160;</string>
     <string name="project_author">Project Author:&#160;</string>
     <string name="opensource_address">Open-Source Address:&#160;</string>
@@ -33,6 +36,8 @@
     <!-- subscription manage page -->
     <string name="subscription">Subscription</string>
     <string name="view_rules">View Rules</string>
+    <string name="view_category">View Category</string>
+    <string name="global_rules">Global Rules</string>
     <string name="share_files">Share Files</string>
     <string name="copy_link">Copy Link</string>
     <string name="feedback">Feedback</string>
@@ -64,9 +69,17 @@
     <string name="overlay_permission_desc">Background prompts, displaying snapshot saving button, and other features.</string>
     <string name="enable_service">Enable Service</string>
     <string name="enable_service_desc">Keep the service running, matching screen targets based on subscription rules.</string>
+    <string name="stay_notification_bar">Stay in Notification Bar</string>
+    <string name="stay_notification_bar_desc">Display service running status in the notification bar to avoid being reclaimed by certain systems</string>
     <string name="click_history">Click History</string>
     <string name="quickly_locate_disabling_rules_here">If a misoperation occurs, quickly locate disabling rules here.</string>
     <string name="latest_clicking">Latest Click: %s</string>
+
+    <!-- click log page -->
+    <string name="disable_rule_in_app">Disable this rule in this app</string>
+    <string name="disable_already_exist">Disable already exists</string>
+    <string name="update_disable">Update disable</string>
+    <string name="delete_history">Delete history</string>
 
     <!-- settings page -->
     <string name="settings">Settings</string>
@@ -105,7 +118,7 @@
     <string name="detect_new_version">Detect New Version</string>
     <string name="download_new_version">Download Update</string>
     <string name="update_from_source_project">Note: This update is from the source project, please do not install it unless you have special requirements.</string>
-    <string name="note_install_update_from_source_project">Once you have installed this update, you will no longer be able to receive updates for the cloned project. At the same time, features from the cloned project will also be lost, such as display support in English, interactive optimization of some interfaces, etc.</string>
+    <string name="note_install_update_from_source_project">Once you have installed this update, you will no longer be able to receive updates for the forked project. At the same time, features from the forked project will also be lost, such as display support in English, interactive optimization of some interfaces, etc.</string>
     <string name="downloading_new_version">Downloading Update</string>
     <string name="stop_download">Stop Download</string>
     <string name="download_success">Download Completed</string>
@@ -131,7 +144,8 @@
     <string name="match_unknown_apps">Match Unknown Apps</string>
     <string name="match_unknown_apps_desc">Matches apps that are not in the installation list (other user spaces).</string>
     <string name="http_service">HTTP Service</string>
-    <string name="http_service_desc">Enable HTTP service to transfer data within the same local network.</string>
+    <string name="http_service_desc1">Open any of the following links in your browser to connect automatically:</string>
+    <string name="http_service_desc2">Enable HTTP service to connect with debugging tools on the same local network.</string>
     <string name="http_service_port">HTTP Service Port: %d</string>
     <string name="auto_clear_subscription_cache">Auto Clear Subscription Cache</string>
     <string name="auto_clear_subscription_cache_desc">Clear memory of subscriptions when the HTTP service is turned off.</string>
@@ -162,6 +176,7 @@
     <string name="if_delete_all_snapshot_history">Do you want to delete all snapshot records?</string>
 
     <!-- subscription page -->
+    <string name="application_rules">Application Rules</string>
     <string name="enter_app_name">Enter App Name</string>
     <string name="local_subscription">Local Subscription</string>
     <string name="default_subscription">Default Subscription</string>
@@ -187,10 +202,14 @@
     <string name="copy_rule_group">Copy Rule Group</string>
     <string name="edit">Edit</string>
     <string name="edit_rule_group">Edit Rule Group</string>
+    <string name="delete_rule_group">Delete Rule Group</string>
     <string name="enter_rule_group">Enter Rule Group</string>
     <string name="rule_group_unchanged">Rule Unchanged</string>
     <string name="cannot_change_rule_group_key">Cannot change rule group key</string>
     <string name="illegal_rule_selector_illegal">Illegal Rule: Contains illegal selectors</string>
+    <string name="edit_disabled_item">Edit Disabled Item</string>
+    <string name="edit_disabled_item_placeholder1">Please enter the activityId(s) you want to disable\nSeparated by line breaks or commas</string>
+    <string name="disabled_item_unchanged">No changes to disabled items</string>
     <string name="add_rule_group">Add Rule Group</string>
     <string name="enter_rule_group_either_app_rule_or_single_rule_group">Enter Rule Group\nIt can be an app rule\nor a single rule group</string>
     <string name="add_fail_inconsistent_id">Add Failed, inconsistent IDs</string>
@@ -228,4 +247,19 @@
     <string name="time_ago_hour">%d hours ago</string>
     <string name="time_ago_minute">%d minutes ago</string>
     <string name="time_ago_just_now">just now</string>
+
+    <!-- category page -->
+    <string name="rule_category">Rule Category</string>
+    <string name="rule_group_count">%d rule groups</string>
+    <string name="no_category">No Categories</string>
+    <string name="edit_category">Edit Category</string>
+    <string name="enter_category_name">Enter Category Name</string>
+    <string name="cannot_add_same_category">Cannot add a category with the same name</string>
+    <string name="edit_success">Edit Successful</string>
+    <string name="add_category">Add Category</string>
+
+    <!-- global rule page -->
+    <string name="illegal_selector">Illegal Selector</string>
+    <string name="add_global_rule_group">Add Global Rule Group</string>
+    <string name="edit_disabled_item_placeholder2">Please enter the appId/activityId(s) you want to disable\nSeparated by line breaks or commas. Example:\ntv.danmaku.bili indicates disabling rules within the app\ntv.danmaku.bili/tv.danmaku.bili.MainActivityV2 indicates disabling rules on a specific page within the app</string>
 </resources>

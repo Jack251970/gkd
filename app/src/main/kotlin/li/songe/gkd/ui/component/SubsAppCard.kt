@@ -10,9 +10,11 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Android
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -22,22 +24,20 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.google.accompanist.drawablepainter.rememberDrawablePainter
 import li.songe.gkd.data.AppInfo
+import li.songe.gkd.data.RawSubscription
 import li.songe.gkd.data.SubsConfig
-import li.songe.gkd.data.SubscriptionRaw
-import li.songe.gkd.util.SafeR
 
 
 @Composable
 fun SubsAppCard(
-    appRaw: SubscriptionRaw.AppRaw,
+    rawApp: RawSubscription.RawApp,
     appInfo: AppInfo? = null,
     subsConfig: SubsConfig? = null,
-    enableSize: Int = appRaw.groups.count { g -> g.enable ?: true },
+    enableSize: Int = rawApp.groups.count { g -> g.enable ?: true },
     onClick: (() -> Unit)? = null,
     showMenu: Boolean = false,
     onMenuClick: (() -> Unit)? = null,
@@ -53,14 +53,24 @@ fun SubsAppCard(
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically,
     ) {
-
-        Image(
-            painter = if (appInfo?.icon != null) rememberDrawablePainter(appInfo.icon) else painterResource(
-                SafeR.ic_app_2
-            ), contentDescription = null, modifier = Modifier
-                .fillMaxHeight()
-                .clip(CircleShape)
-        )
+        if (appInfo?.icon != null) {
+            Image(
+                painter = rememberDrawablePainter(appInfo.icon),
+                contentDescription = null,
+                modifier = Modifier
+                    .size(52.dp)
+                    .clip(CircleShape)
+            )
+        } else {
+            Icon(
+                imageVector = Icons.Default.Android,
+                contentDescription = null,
+                modifier = Modifier
+                    .size(52.dp)
+                    .padding(4.dp)
+                    .clip(CircleShape)
+            )
+        }
 
         Spacer(modifier = Modifier.width(10.dp))
 
@@ -72,7 +82,7 @@ fun SubsAppCard(
             verticalArrangement = Arrangement.SpaceBetween
         ) {
             Text(
-                text = appInfo?.name ?: appRaw.name ?: appRaw.id,
+                text = appInfo?.name ?: rawApp.name ?: rawApp.id,
                 maxLines = 1,
                 softWrap = false,
                 overflow = TextOverflow.Ellipsis,
@@ -80,9 +90,9 @@ fun SubsAppCard(
             )
 
             val enableDesc = when (enableSize) {
-                0 -> "${appRaw.groups.size}组规则/${appRaw.groups.size}关闭"
-                appRaw.groups.size -> "${appRaw.groups.size}组规则"
-                else -> "${appRaw.groups.size}组规则/${enableSize}启用/${appRaw.groups.size - enableSize}关闭"
+                0 -> "${rawApp.groups.size}组规则/${rawApp.groups.size}关闭"
+                rawApp.groups.size -> "${rawApp.groups.size}组规则"
+                else -> "${rawApp.groups.size}组规则/${enableSize}启用/${rawApp.groups.size - enableSize}关闭"
             }
             Text(
                 text = enableDesc,
@@ -107,7 +117,7 @@ fun SubsAppCard(
         }
 
         Switch(
-            subsConfig?.enable ?: true,
+            subsConfig?.enable ?: (appInfo != null),
             onValueChange,
         )
     }

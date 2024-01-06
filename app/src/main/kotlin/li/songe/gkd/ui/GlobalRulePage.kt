@@ -8,13 +8,12 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
@@ -27,6 +26,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -36,12 +36,12 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -61,13 +61,11 @@ import li.songe.gkd.data.RawSubscription
 import li.songe.gkd.data.SubsConfig
 import li.songe.gkd.data.stringify
 import li.songe.gkd.db.DbSet
-import li.songe.gkd.ui.component.PageScaffold
+import li.songe.gkd.ui.component.getDialogResult
 import li.songe.gkd.ui.destinations.GroupItemPageDestination
 import li.songe.gkd.util.LocalNavController
 import li.songe.gkd.util.ProfileTransitions
-import li.songe.gkd.util.appInfoCacheFlow
 import li.songe.gkd.util.encodeToJson5String
-import li.songe.gkd.util.getGroupRawEnable
 import li.songe.gkd.util.json
 import li.songe.gkd.util.launchAsFn
 import li.songe.gkd.util.launchTry
@@ -77,84 +75,70 @@ import li.songe.gkd.util.updateSubscription
 @RootNavGraph
 @Destination(style = ProfileTransitions::class)
 @Composable
-fun AppItemPage(
-    subsItemId: Long,
-    appId: String,
-    focusGroupKey: Int? = null, // 背景/边框高亮一下
-) {
-    val scope = rememberCoroutineScope()
+fun GlobalRulePage(subsItemId: Long, focusGroupKey: Int? = null) {
     val navController = LocalNavController.current
-    val vm = hiltViewModel<AppItemVm>()
+    val vm = hiltViewModel<GlobalRuleVm>()
     val subsItem by vm.subsItemFlow.collectAsState()
-    val subsRaw = vm.subsRawFlow.collectAsState().value
+    val rawSubs = vm.subsRawFlow.collectAsState().value
     val subsConfigs by vm.subsConfigsFlow.collectAsState()
-    val categoryConfigs by vm.categoryConfigsFlow.collectAsState()
-    val appRaw by vm.subsAppFlow.collectAsState()
-    val appInfoCache by appInfoCacheFlow.collectAsState()
 
-    val appRawVal = appRaw
-    val subsItemVal = subsItem
-    val groupToCategoryMap = subsRaw?.groupToCategoryMap ?: emptyMap()
+    val editable = subsItemId < 0 && rawSubs != null && subsItem != null
+    val globalGroups = rawSubs?.globalGroups ?: emptyList()
 
+    var showAddDlg by remember { mutableStateOf(false) }
+    val (menuGroupRaw, setMenuGroupRaw) = remember {
+        mutableStateOf<RawSubscription.RawGlobalGroup?>(null)
+    }
+    val (editGroupRaw, setEditGroupRaw) = remember {
+        mutableStateOf<RawSubscription.RawGlobalGroup?>(null)
+    }
+    val (excludeGroupRaw, setExcludeGroupRaw) = remember {
+        mutableStateOf<RawSubscription.RawGlobalGroup?>(null)
+    }
     val (showGroupItem, setShowGroupItem) = remember {
-        mutableStateOf<RawSubscription.RawAppGroup?>(
+        mutableStateOf<RawSubscription.RawGlobalGroup?>(
             null
         )
     }
 
-    val editable = subsItem != null && subsItemId < 0
-
-    var showAddDlg by remember { mutableStateOf(false) }
-
-    val (menuGroupRaw, setMenuGroupRaw) = remember {
-        mutableStateOf<RawSubscription.RawAppGroup?>(null)
-    }
-    val (editGroupRaw, setEditGroupRaw) = remember {
-        mutableStateOf<RawSubscription.RawAppGroup?>(null)
-    }
-    val (excludeGroupRaw, setExcludeGroupRaw) = remember {
-        mutableStateOf<RawSubscription.RawAppGroup?>(null)
-    }
-
-    PageScaffold(topBar = {
-        TopAppBar(navigationIcon = {
-            IconButton(onClick = {
-                navController.popBackStack()
-            }) {
-                Icon(
-                    imageVector = Icons.Default.ArrowBack,
-                    contentDescription = null,
-                )
+    Scaffold(
+        topBar = {
+            TopAppBar(navigationIcon = {
+                IconButton(onClick = {
+                    navController.popBackStack()
+                }) {
+                    Icon(
+                        imageVector = Icons.Default.ArrowBack,
+                        contentDescription = null,
+                    )
+                }
+            }, title = {
+                var name = rawSubs?.name ?: subsItemId.toString()
+                when (name) {
+                    "本地订阅" -> {
+                        name = stringResource(R.string.local_subscription)
+                    }
+                    "默认订阅" -> {
+                        name = stringResource(R.string.default_subscription)
+                    }
+                }
+                Text(text = "${name}/${stringResource(R.string.global_rules)}")
+            })
+        }, floatingActionButton = {
+            if (editable) {
+                FloatingActionButton(onClick = { showAddDlg = true }) {
+                    Icon(
+                        imageVector = Icons.Filled.Add,
+                        contentDescription = "add",
+                    )
+                }
             }
-        }, title = {
-            val text = if (subsRaw == null) {
-                stringResource(R.string.subscription_file_miss)
-            } else {
-                "${subsRaw.name}/${appInfoCache[appRaw?.id]?.name ?: appRaw?.name ?: appRaw?.id}"
-            }
-            Text(text = text)
-        }, actions = {})
-    }, floatingActionButton = {
-        if (editable) {
-            FloatingActionButton(onClick = { showAddDlg = true }) {
-                Icon(
-                    imageVector = Icons.Filled.Add,
-                    contentDescription = "add",
-                )
-            }
-        }
-    }, content = { contentPadding ->
-        LazyColumn(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(contentPadding)
-                .padding(start = 10.dp, end = 10.dp)
-        ) {
-            item {
-                Spacer(modifier = Modifier.height(10.dp))
-            }
-            appRaw?.groups?.let { groupsVal ->
-                itemsIndexed(groupsVal, { i, g -> i.toString() + g.key }) { _, group ->
+        },
+        content = { paddingValues ->
+            LazyColumn(modifier = Modifier
+                .padding(paddingValues)
+                .padding(start = 10.dp, end = 10.dp)) {
+                items(globalGroups, { g -> g.key }) { group ->
                     Row(
                         modifier = Modifier
                             .background(
@@ -191,7 +175,7 @@ fun AppItemPage(
                                 )
                             } else {
                                 Text(
-                                    text = stringResource(R.string.rule_group_corrupt),
+                                    text = stringResource(R.string.illegal_selector),
                                     modifier = Modifier.fillMaxWidth(),
                                     fontSize = 14.sp,
                                     color = MaterialTheme.colorScheme.error
@@ -205,88 +189,91 @@ fun AppItemPage(
                         }) {
                             Icon(
                                 imageVector = Icons.Default.MoreVert,
-                                contentDescription = "more",
+                                contentDescription = null,
                             )
                         }
                         Spacer(modifier = Modifier.width(10.dp))
 
-                        val groupEnable = getGroupRawEnable(
-                            group,
-                            subsConfigs,
-                            groupToCategoryMap[group],
-                            categoryConfigs
-                        )
+                        val groupEnable = subsConfigs.find { c -> c.groupKey == group.key }?.enable
+                            ?: group.enable ?: true
                         val subsConfig = subsConfigs.find { it.groupKey == group.key }
                         Switch(
                             checked = groupEnable, modifier = Modifier,
-                            onCheckedChange = scope.launchAsFn { enable ->
+                            onCheckedChange = vm.viewModelScope.launchAsFn { enable ->
                                 val newItem = (subsConfig?.copy(enable = enable) ?: SubsConfig(
-                                    type = SubsConfig.AppGroupType,
+                                    type = SubsConfig.GlobalGroupType,
                                     subsItemId = subsItemId,
-                                    appId = appId,
                                     groupKey = group.key,
                                     enable = enable
                                 ))
                                 DbSet.subsConfigDao.insert(newItem)
-                            })
+                            }
+                        )
                     }
                 }
-            }
-
-            item {
-                Spacer(modifier = Modifier.height(20.dp))
+                item {
+                    Spacer(modifier = Modifier.height(40.dp))
+                    if (globalGroups.isEmpty()) {
+                        Text(
+                            text = stringResource(R.string.no_rules),
+                            modifier = Modifier.fillMaxWidth(),
+                            textAlign = TextAlign.Center
+                        )
+                    }
+                }
             }
         }
-    })
+    )
 
-
-    showGroupItem?.let { showGroupItemVal ->
-        AlertDialog(modifier = Modifier.defaultMinSize(300.dp),
-            onDismissRequest = { setShowGroupItem(null) },
-            title = {
-                Text(text = showGroupItemVal.name)
-            },
-            text = {
-                Column {
-                    if (showGroupItemVal.enable == false) {
-                        Text(text = stringResource(R.string.rule_group_default_disable))
-                        Spacer(modifier = Modifier.height(10.dp))
-                    }
-                    Text(text = showGroupItemVal.desc ?: "")
+    if (showAddDlg && rawSubs != null) {
+        var source by remember {
+            mutableStateOf("")
+        }
+        AlertDialog(title = { Text(text = stringResource(R.string.add_global_rule_group)) }, text = {
+            OutlinedTextField(
+                value = source,
+                onValueChange = { source = it },
+                modifier = Modifier.fillMaxWidth(),
+                placeholder = { Text(text = stringResource(R.string.enter_rule_group)) },
+                maxLines = 10,
+            )
+        }, onDismissRequest = { showAddDlg = false }, confirmButton = {
+            TextButton(onClick = {
+                val newGroup = try {
+                    RawSubscription.parseRawGlobalGroup(source)
+                } catch (e: Exception) {
+                    ToastUtils.showShort(app.getString(R.string.illegal_rule, e.message))
+                    return@TextButton
                 }
-            },
-            confirmButton = {
-                Row {
-                    if (showGroupItemVal.allExampleUrls.isNotEmpty()) {
-                        TextButton(onClick = {
-                            setShowGroupItem(null)
-                            navController.navigate(
-                                GroupItemPageDestination(
-                                    subsInt = subsItemId,
-                                    groupKey = showGroupItemVal.key,
-                                    appId = appId,
-                                )
-                            )
-                        }) {
-                            Text(text = stringResource(R.string.view_image))
-                        }
-                    }
-                    TextButton(onClick = {
-                        val groupAppText = json.encodeToJson5String(
-                            appRaw?.copy(
-                                groups = listOf(showGroupItemVal)
-                            )
-                        )
-                        ClipboardUtils.copyText(groupAppText)
-                        ToastUtils.showShort(app.getString(R.string.copy_success))
-                    }) {
-                        Text(text = stringResource(R.string.copy_rule_group))
-                    }
+                if (!newGroup.valid) {
+                    ToastUtils.showShort(app.getString(R.string.illegal_rule_selector_illegal))
+                    return@TextButton
                 }
-            })
+                if (rawSubs.globalGroups.any { g -> g.name == newGroup.name }) {
+                    ToastUtils.showShort(app.getString(R.string.exist_rule_with_same_name, newGroup.name))
+                    return@TextButton
+                }
+                val newKey = (rawSubs.globalGroups.maxByOrNull { g -> g.key }?.key ?: -1) + 1
+                val newRawSubs = rawSubs.copy(
+                    globalGroups = rawSubs.globalGroups.toMutableList()
+                        .apply { add(newGroup.copy(key = newKey)) }
+                )
+                updateSubscription(newRawSubs)
+                vm.viewModelScope.launchTry(Dispatchers.IO) {
+                    showAddDlg = false
+                    ToastUtils.showShort(app.getString(R.string.add_success))
+                }
+            }, enabled = source.isNotEmpty()) {
+                Text(text = stringResource(R.string.add))
+            }
+        }, dismissButton = {
+            TextButton(onClick = { showAddDlg = false }) {
+                Text(text = stringResource(R.string.cancel))
+            }
+        })
     }
 
-    if (menuGroupRaw != null && appRawVal != null && subsItemVal != null) {
+    if (menuGroupRaw != null && rawSubs != null) {
         Dialog(onDismissRequest = { setMenuGroupRaw(null) }) {
             Card(
                 modifier = Modifier
@@ -295,7 +282,7 @@ fun AppItemPage(
                 shape = RoundedCornerShape(16.dp),
             ) {
                 Column {
-                    Text(text = stringResource(R.string.edit), modifier = Modifier
+                    Text(text = stringResource(R.string.edit_disabled_item), modifier = Modifier
                         .clickable {
                             setExcludeGroupRaw(menuGroupRaw)
                             setMenuGroupRaw(null)
@@ -312,24 +299,26 @@ fun AppItemPage(
                             .fillMaxWidth())
                         Text(text = stringResource(R.string.delete_rule_group), modifier = Modifier
                             .clickable {
-                                vm.viewModelScope.launchTry(Dispatchers.IO) {
-                                    subsRaw ?: return@launchTry
-                                    val newSubsRaw = subsRaw.copy(
-                                        apps = subsRaw.apps
-                                            .toMutableList()
-                                            .apply {
-                                                set(
-                                                    indexOfFirst { a -> a.id == appRawVal.id },
-                                                    appRawVal.copy(groups = appRawVal.groups.filter { g -> g.key != menuGroupRaw.key })
-                                                )
-                                            })
-                                    updateSubscription(newSubsRaw)
-                                    DbSet.subsItemDao.update(subsItemVal.copy(mtime = System.currentTimeMillis()))
-                                    DbSet.subsConfigDao.delete(
-                                        subsItemVal.id, appRawVal.id, menuGroupRaw.key
+                                setMenuGroupRaw(null)
+                                vm.viewModelScope.launchTry {
+                                    if (!getDialogResult(
+                                            app.getString(
+                                                R.string.if_delete,
+                                                menuGroupRaw.name
+                                            )
+                                        )
+                                    ) return@launchTry
+                                    updateSubscription(
+                                        rawSubs.copy(
+                                            globalGroups = rawSubs.globalGroups.filter { g -> g.key != menuGroupRaw.key }
+                                        )
                                     )
-                                    ToastUtils.showShort(app.getString(R.string.delete_success))
-                                    setMenuGroupRaw(null)
+                                    val subsConfig =
+                                        subsConfigs.find { it.groupKey == menuGroupRaw.key }
+                                    if (subsConfig != null) {
+                                        DbSet.subsConfigDao.delete(subsConfig)
+                                    }
+                                    DbSet.subsItemDao.updateMtime(rawSubs.id)
                                 }
                             }
                             .padding(16.dp)
@@ -341,8 +330,7 @@ fun AppItemPage(
             }
         }
     }
-
-    if (editGroupRaw != null && appRawVal != null && subsItemVal != null) {
+    if (editGroupRaw != null && rawSubs != null) {
         var source by remember {
             mutableStateOf(json.encodeToJson5String(editGroupRaw))
         }
@@ -371,7 +359,7 @@ fun AppItemPage(
                         return@TextButton
                     }
                     val newGroupRaw = try {
-                        RawSubscription.parseRawGroup(source)
+                        RawSubscription.parseRawGlobalGroup(source)
                     } catch (e: Exception) {
                         LogUtils.d(e)
                         ToastUtils.showShort(app.getString(R.string.illegal_rule, e.message))
@@ -386,20 +374,15 @@ fun AppItemPage(
                         return@TextButton
                     }
                     setEditGroupRaw(null)
-                    subsRaw ?: return@TextButton
-                    val newSubsRaw = subsRaw.copy(apps = subsRaw.apps.toMutableList().apply {
-                        set(
-                            indexOfFirst { a -> a.id == appRawVal.id },
-                            appRawVal.copy(groups = appRawVal.groups.toMutableList().apply {
-                                set(
-                                    indexOfFirst { g -> g.key == newGroupRaw.key }, newGroupRaw
-                                )
-                            })
-                        )
-                    })
+                    val newGlobalGroups = rawSubs.globalGroups.toMutableList().apply {
+                        val i = rawSubs.globalGroups.indexOfFirst { g -> g.key == newGroupRaw.key }
+                        if (i >= 0) {
+                            set(i, newGroupRaw)
+                        }
+                    }
+                    updateSubscription(rawSubs.copy(globalGroups = newGlobalGroups))
                     vm.viewModelScope.launchTry(Dispatchers.IO) {
-                        updateSubscription(newSubsRaw)
-                        DbSet.subsItemDao.update(subsItemVal.copy(mtime = System.currentTimeMillis()))
+                        DbSet.subsItemDao.updateMtime(rawSubs.id)
                         ToastUtils.showShort(app.getString(R.string.update_success))
                     }
                 }, enabled = source.isNotEmpty()) {
@@ -409,11 +392,11 @@ fun AppItemPage(
         )
     }
 
-    if (excludeGroupRaw != null && appRawVal != null && subsItemVal != null) {
+    if (excludeGroupRaw != null && rawSubs != null) {
         var source by remember {
             mutableStateOf(
                 ExcludeData.parse(subsConfigs.find { s -> s.groupKey == excludeGroupRaw.key }?.exclude)
-                    .stringify(appId)
+                    .stringify()
             )
         }
         val oldSource = remember { source }
@@ -427,7 +410,7 @@ fun AppItemPage(
                     placeholder = {
                         Text(
                             fontSize = 12.sp,
-                            text = stringResource(R.string.edit_disabled_item_placeholder1)
+                            text = stringResource(R.string.edit_disabled_item_placeholder2)
                         )
                     },
                     maxLines = 10,
@@ -448,11 +431,10 @@ fun AppItemPage(
                     setExcludeGroupRaw(null)
                     val newSubsConfig =
                         (subsConfigs.find { s -> s.groupKey == excludeGroupRaw.key } ?: SubsConfig(
-                            type = SubsConfig.AppGroupType,
+                            type = SubsConfig.GlobalGroupType,
                             subsItemId = subsItemId,
-                            appId = appId,
                             groupKey = excludeGroupRaw.key,
-                        )).copy(exclude = ExcludeData.parse(appId, source).stringify())
+                        )).copy(exclude = ExcludeData.parse(source).stringify())
                     vm.viewModelScope.launchTry(Dispatchers.IO) {
                         DbSet.subsConfigDao.insert(newSubsConfig)
                         ToastUtils.showShort(app.getString(R.string.update_success))
@@ -464,81 +446,45 @@ fun AppItemPage(
         )
     }
 
-    if (showAddDlg && appRawVal != null && subsItemVal != null) {
-        var source by remember {
-            mutableStateOf("")
-        }
-        AlertDialog(title = { Text(text = stringResource(R.string.add_rule_group)) }, text = {
-            OutlinedTextField(
-                value = source,
-                onValueChange = { source = it },
-                modifier = Modifier.fillMaxWidth(),
-                placeholder = { Text(text = stringResource(R.string.enter_rule_group_either_app_rule_or_single_rule_group)) },
-                maxLines = 10,
-            )
-        }, onDismissRequest = { showAddDlg = false }, confirmButton = {
-            TextButton(onClick = {
-                val newAppRaw = try {
-                    RawSubscription.parseRawApp(source)
-                } catch (_: Exception) {
-                    null
-                }
-                val tempGroups = if (newAppRaw == null) {
-                    val newGroupRaw = try {
-                        RawSubscription.parseRawGroup(source)
-                    } catch (e: Exception) {
-                        LogUtils.d(e)
-                        ToastUtils.showShort(app.getString(R.string.illegal_rule, e.message))
-                        return@TextButton
+    if (showGroupItem != null) {
+        AlertDialog(
+            modifier = Modifier.defaultMinSize(300.dp),
+            onDismissRequest = { setShowGroupItem(null) },
+            title = {
+                Text(text = showGroupItem.name)
+            },
+            text = {
+                Column {
+                    if (showGroupItem.enable == false) {
+                        Text(text = stringResource(R.string.rule_group_default_disable))
+                        Spacer(modifier = Modifier.height(10.dp))
                     }
-                    listOf(newGroupRaw)
-                } else {
-                    if (newAppRaw.id != appRawVal.id) {
-                        ToastUtils.showShort(app.getString(R.string.add_fail_inconsistent_id))
-                        return@TextButton
-                    }
-                    if (newAppRaw.groups.isEmpty()) {
-                        ToastUtils.showShort(app.getString(R.string.add_fail_blank_rule_group))
-                        return@TextButton
-                    }
-                    newAppRaw.groups
+                    Text(text = showGroupItem.desc ?: "")
                 }
-                if (!tempGroups.all { g -> g.valid }) {
-                    ToastUtils.showShort(app.getString(R.string.illegal_rule_selector_illegal))
-                    return@TextButton
-                }
-                tempGroups.forEach { g ->
-                    if (appRawVal.groups.any { g2 -> g2.name == g.name }) {
-                        ToastUtils.showShort(app.getString(R.string.exist_rule_with_same_name, g.name))
-                        return@TextButton
-                    }
-                }
-                val newKey = (appRawVal.groups.maxByOrNull { g -> g.key }?.key ?: -1) + 1
-                subsRaw ?: return@TextButton
-                val newSubsRaw = subsRaw.copy(apps = subsRaw.apps.toMutableList().apply {
-                    set(
-                        indexOfFirst { a -> a.id == appRawVal.id },
-                        appRawVal.copy(groups = appRawVal.groups + tempGroups.mapIndexed { i, g ->
-                            g.copy(
-                                key = newKey + i
+            },
+            confirmButton = {
+                Row {
+                    if (showGroupItem.allExampleUrls.isNotEmpty()) {
+                        TextButton(onClick = {
+                            setShowGroupItem(null)
+                            navController.navigate(
+                                GroupItemPageDestination(
+                                    subsInt = subsItemId,
+                                    groupKey = showGroupItem.key
+                                )
                             )
-                        })
-                    )
-                })
-                vm.viewModelScope.launchTry(Dispatchers.IO) {
-                    DbSet.subsItemDao.update(subsItemVal.copy(mtime = System.currentTimeMillis()))
-                    updateSubscription(newSubsRaw)
-                    showAddDlg = false
-                    ToastUtils.showShort(app.getString(R.string.add_success))
+                        }) {
+                            Text(text = stringResource(R.string.view_image))
+                        }
+                    }
+                    TextButton(onClick = {
+                        val groupAppText = json.encodeToJson5String(showGroupItem)
+                        ClipboardUtils.copyText(groupAppText)
+                        ToastUtils.showShort(app.getString(R.string.copy_success))
+                    }) {
+                        Text(text = stringResource(R.string.copy_rule_group))
+                    }
                 }
-            }, enabled = source.isNotEmpty()) {
-                Text(text = stringResource(R.string.add))
-            }
-        }, dismissButton = {
-            TextButton(onClick = { showAddDlg = false }) {
-                Text(text = stringResource(R.string.cancel))
-            }
-        })
+            })
     }
 }
-

@@ -321,9 +321,9 @@ fun startDownload(newVersion: NewVersionAsset) {
                     } else if (downloadStatus is LoadStatus.Failure) {
                         // 提前终止下载
                         job?.cancel()
-                        }
                     }
-                }.bodyAsChannel()
+                }
+            }.bodyAsChannel()
             if (downloadStatusFlow.value is LoadStatus.Loading) {
                 channel.copyAndClose(newApkFile.writeChannel())
                 downloadStatusFlow.value = LoadStatus.Success(newApkFile.absolutePath)
@@ -341,7 +341,6 @@ fun UpgradeDialog() {
     val newVersion by newVersionFlow.collectAsState()
     var fromSourceDialog by remember { mutableStateOf(false) }
     newVersion?.let { newVersionVal ->
-
         AlertDialog(title = {
             Text(text = stringResource(R.string.detect_new_version))
         }, text = {

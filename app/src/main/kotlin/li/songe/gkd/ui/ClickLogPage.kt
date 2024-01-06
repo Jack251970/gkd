@@ -40,14 +40,22 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.viewModelScope
+import com.blankj.utilcode.util.ToastUtils
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootNavGraph
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.first
 import li.songe.gkd.R
+import li.songe.gkd.app
 import li.songe.gkd.data.ClickLog
+import li.songe.gkd.data.ExcludeData
+import li.songe.gkd.data.SubsConfig
+import li.songe.gkd.data.stringify
 import li.songe.gkd.db.DbSet
 import li.songe.gkd.ui.component.PageScaffold
 import li.songe.gkd.ui.destinations.AppItemPageDestination
+import li.songe.gkd.ui.destinations.GlobalRulePageDestination
 import li.songe.gkd.util.LocalNavController
 import li.songe.gkd.util.ProfileTransitions
 import li.songe.gkd.util.appInfoCacheFlow
@@ -137,20 +145,19 @@ fun ClickLogPage() {
                         } else {
                             null
                         }
-                        Text(
-                            text = showActivityId ?: "null",
-                            overflow = TextOverflow.Ellipsis,
-                            maxLines = 1,
-                        )
+                        if (showActivityId != null) {
+                            Text(
+                                text = showActivityId,
+                                overflow = TextOverflow.Ellipsis,
+                                maxLines = 1,
+                            )
+                        }
                         if (group?.name != null) {
-                            Spacer(modifier = Modifier.width(10.dp))
                             Text(text = group.name)
                         }
                         if (rule?.name != null) {
-                            Spacer(modifier = Modifier.width(10.dp))
-                            Text(text = rule.name)
+                            Text(text = rule.name ?: "")
                         } else if ((group?.rules?.size ?: 0) > 1) {
-                            Spacer(modifier = Modifier.width(10.dp))
                             Text(text = (if (clickLog.ruleKey != null) "key=${clickLog.ruleKey}, " else "") + "index=${clickLog.ruleIndex}")
                         }
                     }
@@ -173,7 +180,7 @@ fun ClickLogPage() {
         }
     })
 
-    previewClickLog?.let { previewTriggerLogVal ->
+    previewClickLog?.let { clickLog ->
         Dialog(onDismissRequest = { previewClickLog = null }) {
             Card(
                 modifier = Modifier
@@ -184,24 +191,141 @@ fun ClickLogPage() {
                 Column {
                     Text(text = stringResource(R.string.view_rule_group), modifier = Modifier
                         .clickable {
-                            previewTriggerLogVal.appId ?: return@clickable
-                            navController.navigate(
-                                AppItemPageDestination(
-                                    previewTriggerLogVal.subsId,
-                                    previewTriggerLogVal.appId,
-                                    previewTriggerLogVal.groupKey
+                            clickLog.appId ?: return@clickable
+                            if (clickLog.groupType == SubsConfig.AppGroupType) {
+                                navController.navigate(
+                                    AppItemPageDestination(
+                                        clickLog.subsId,
+                                        clickLog.appId,
+                                        clickLog.groupKey
+                                    )
                                 )
-                            )
+                            } else if (clickLog.groupType == SubsConfig.GlobalGroupType) {
+                                navController.navigate(
+                                    GlobalRulePageDestination(
+                                        clickLog.subsId,
+                                        clickLog.groupKey
+                                    )
+                                )
+                            }
                             previewClickLog = null
                         }
                         .fillMaxWidth()
                         .padding(16.dp))
+
+                    if (clickLog.groupType == SubsConfig.GlobalGroupType && clickLog.appId != null) {
+                        Text(
+                            text = stringResource(R.string.disable_rule_in_app),
+                            modifier = Modifier
+                                .clickable(onClick = vm.viewModelScope.launchAsFn(Dispatchers.IO) {
+                                    val subsConfig = DbSet.subsConfigDao
+                                        .queryGlobalGroupTypeConfig(
+                                            clickLog.subsId,
+                                            clickLog.groupKey
+                                        )
+                                        .first()
+                                        .firstOrNull() ?: SubsConfig(
+                                        type = SubsConfig.GlobalGroupType,
+                                        subsItemId = clickLog.subsId,
+                                        groupKey = clickLog.groupKey,
+                                    )
+                                    val excludeData = ExcludeData.parse(subsConfig.exclude)
+                                    if (excludeData.appIds.contains(clickLog.appId)) {
+                                        ToastUtils.showShort(app.getString(R.string.disable_already_exist))
+                                        return@launchAsFn
+                                    }
+                                    previewClickLog = null
+                                    val newSubsConfig = subsConfig.copy(
+                                        exclude = excludeData
+                                            .copy(
+                                                appIds = excludeData.appIds
+                                                    .toMutableSet()
+                                                    .apply { add(clickLog.appId) })
+                                            .stringify()
+                                    )
+                                    DbSet.subsConfigDao.insert(newSubsConfig)
+                                    ToastUtils.showShort(app.getString(R.string.update_disable))
+                                })
+                                .fillMaxWidth()
+                                .padding(16.dp),
+                        )
+                    }
+                    if (clickLog.appId != null && clickLog.activityId != null) {
+                        Text(
+                            text = stringResource(R.string.disable_rule_in_app),
+                            modifier = Modifier
+                                .clickable(onClick = vm.viewModelScope.launchAsFn(Dispatchers.IO) {
+                                    val subsConfig =
+                                        if (clickLog.groupType == SubsConfig.AppGroupType) {
+                                            DbSet.subsConfigDao
+                                                .queryAppGroupTypeConfig(
+                                                    clickLog.subsId,
+                                                    clickLog.appId,
+                                                    clickLog.groupKey
+                                                )
+                                                .first()
+                                                .firstOrNull() ?: SubsConfig(
+                                                type = SubsConfig.AppGroupType,
+                                                subsItemId = clickLog.subsId,
+                                                appId = clickLog.appId,
+                                                groupKey = clickLog.groupKey,
+                                            )
+                                        } else {
+                                            DbSet.subsConfigDao
+                                                .queryGlobalGroupTypeConfig(
+                                                    clickLog.subsId,
+                                                    clickLog.groupKey
+                                                )
+                                                .first()
+                                                .firstOrNull() ?: SubsConfig(
+                                                type = SubsConfig.GlobalGroupType,
+                                                subsItemId = clickLog.subsId,
+                                                groupKey = clickLog.groupKey,
+                                            )
+                                        }
+                                    val excludeData = ExcludeData.parse(subsConfig.exclude)
+                                    if (excludeData.appIds.contains(clickLog.appId) ||
+                                        excludeData.activityMap[clickLog.appId]?.any { a ->
+                                            a.startsWith(
+                                                clickLog.activityId
+                                            )
+                                        } == true
+                                    ) {
+                                        ToastUtils.showShort(app.getString(R.string.disable_already_exist))
+                                        return@launchAsFn
+                                    }
+                                    previewClickLog = null
+                                    val newSubsConfig = subsConfig.copy(
+                                        exclude = excludeData
+                                            .copy(
+                                                activityMap = excludeData.activityMap
+                                                    .toMutableMap()
+                                                    .apply {
+                                                        this[clickLog.appId] = (get(clickLog.appId)
+                                                            ?: emptyList())
+                                                            .toMutableList()
+                                                            .apply {
+                                                                add(clickLog.activityId)
+                                                            }
+                                                    }
+                                            )
+                                            .stringify()
+                                    )
+                                    DbSet.subsConfigDao.insert(newSubsConfig)
+                                    ToastUtils.showShort(app.getString(R.string.update_disable))
+                                })
+                                .fillMaxWidth()
+                                .padding(16.dp),
+                        )
+                    }
+
                     Text(
-                        text = stringResource(R.string.delete),
+                        text = stringResource(R.string.delete_history),
                         modifier = Modifier
                             .clickable(onClick = scope.launchAsFn {
                                 previewClickLog = null
-                                DbSet.clickLogDao.delete(previewTriggerLogVal)
+                                DbSet.clickLogDao.delete(clickLog)
+                                ToastUtils.showShort(app.getString(R.string.delete_success))
                             })
                             .fillMaxWidth()
                             .padding(16.dp),

@@ -12,7 +12,6 @@ import androidx.compose.ui.unit.dp
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
 
 // From: https://github.com/llwdslal/WanAndroid
-
 @Composable
 fun PageScaffold(
     modifier: Modifier = Modifier,
@@ -21,10 +20,10 @@ fun PageScaffold(
     snackbarHost: @Composable () -> Unit = {},
     floatingActionButton: @Composable () -> Unit = {},
     floatingActionButtonPosition: FabPosition = FabPosition.End,
-    content: @Composable (PaddingValues) -> Unit,
     statusBarColor: Color = Color.Transparent,
     navigationBarColor: Color = Color.Transparent,
     useDarkModeIcons:(() -> Boolean)? = null,
+    content: @Composable (PaddingValues) -> Unit,
 ) {
     val systemUiController = rememberSystemUiController()
     val isUseDarkModeIcons = if (useDarkModeIcons != null){

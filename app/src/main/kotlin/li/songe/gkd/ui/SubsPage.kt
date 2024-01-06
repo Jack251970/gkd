@@ -51,11 +51,10 @@ import com.blankj.utilcode.util.ToastUtils
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootNavGraph
 import kotlinx.coroutines.Dispatchers
-import kotlinx.serialization.encodeToString
 import li.songe.gkd.R
 import li.songe.gkd.app
+import li.songe.gkd.data.RawSubscription
 import li.songe.gkd.data.SubsConfig
-import li.songe.gkd.data.SubscriptionRaw
 import li.songe.gkd.db.DbSet
 import li.songe.gkd.ui.component.AppBarTextField
 import li.songe.gkd.ui.component.PageScaffold
@@ -69,6 +68,7 @@ import li.songe.gkd.util.json
 import li.songe.gkd.util.launchAsFn
 import li.songe.gkd.util.launchTry
 import li.songe.gkd.util.navigate
+import li.songe.gkd.util.updateSubscription
 
 
 @RootNavGraph
@@ -95,11 +95,11 @@ fun SubsPage(
         mutableStateOf(false)
     }
 
-    var menuAppRaw by remember {
-        mutableStateOf<SubscriptionRaw.AppRaw?>(null)
+    var menuRawApp by remember {
+        mutableStateOf<RawSubscription.RawApp?>(null)
     }
-    var editAppRaw by remember {
-        mutableStateOf<SubscriptionRaw.AppRaw?>(null)
+    var editRawApp by remember {
+        mutableStateOf<RawSubscription.RawApp?>(null)
     }
 
     var showSearchBar by rememberSaveable {
@@ -133,7 +133,7 @@ fun SubsPage(
                         modifier = Modifier.focusRequester(focusRequester)
                     )
                 } else {
-                    var name = subsRaw?.name ?: subsItem?.id.toString()
+                    var name = subsRaw?.name ?: subsItemId.toString()
                     when (name) {
                         "本地订阅" -> {
                             name = stringResource(R.string.local_subscription)
@@ -142,7 +142,7 @@ fun SubsPage(
                             name = stringResource(R.string.default_subscription)
                         }
                     }
-                    Text(text = name)
+                    Text(text = "${name}/${stringResource(R.string.application_rules)}")
                 }
             }, actions = {
                 if (showSearchBar) {
@@ -174,60 +174,60 @@ fun SubsPage(
                 }
             }
         },
-        content =  { padding ->
-            LazyColumn(
-                modifier = Modifier
-                    .padding(padding)
-                    .padding(start = 10.dp, end = 10.dp),
-                verticalArrangement = Arrangement.spacedBy(0.dp),
-            ) {
-                itemsIndexed(appAndConfigs, { i, a -> i.toString() + a.t0.id }) { _, a ->
-                    val (appRaw, subsConfig, enableSize) = a
-                    SubsAppCard(appRaw = appRaw,
-                        appInfo = appInfoCache[appRaw.id],
-                        subsConfig = subsConfig,
-                        enableSize = enableSize,
-                        onClick = {
-                            navController.navigate(AppItemPageDestination(subsItemId, appRaw.id))
-                        },
-                        onValueChange = scope.launchAsFn { enable ->
-                            val newItem = subsConfig?.copy(
-                                enable = enable
-                            ) ?: SubsConfig(
-                                enable = enable,
-                                type = SubsConfig.AppType,
-                                subsItemId = subsItemId,
-                                appId = appRaw.id,
-                            )
-                            DbSet.subsConfigDao.insert(newItem)
-                        },
-                        showMenu = editable,
-                        onMenuClick = {
-                            menuAppRaw = appRaw
-                        })
-                }
-                item {
-                    if (appAndConfigs.isEmpty()) {
-                        Spacer(modifier = Modifier.height(40.dp))
-                        Column(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalAlignment = Alignment.CenterHorizontally,
-                        ) {
-                            if (searchStr.isNotEmpty()) {
-                                Text(text = stringResource(R.string.no_search_result))
-                            } else {
-                                Text(text = stringResource(R.string.subscription_no_rules))
-                            }
+    ) { padding ->
+        LazyColumn(
+            modifier = Modifier
+                .padding(padding)
+                .padding(start = 10.dp, end = 10.dp),
+            verticalArrangement = Arrangement.spacedBy(0.dp)
+        ) {
+            itemsIndexed(appAndConfigs, { i, a -> i.toString() + a.t0.id }) { _, a ->
+                val (appRaw, subsConfig, enableSize) = a
+                SubsAppCard(
+                    rawApp = appRaw,
+                    appInfo = appInfoCache[appRaw.id],
+                    subsConfig = subsConfig,
+                    enableSize = enableSize,
+                    onClick = {
+                        navController.navigate(AppItemPageDestination(subsItemId, appRaw.id))
+                    },
+                    onValueChange = scope.launchAsFn { enable ->
+                        val newItem = subsConfig?.copy(
+                            enable = enable
+                        ) ?: SubsConfig(
+                            enable = enable,
+                            type = SubsConfig.AppType,
+                            subsItemId = subsItemId,
+                            appId = appRaw.id,
+                        )
+                        DbSet.subsConfigDao.insert(newItem)
+                    },
+                    showMenu = editable,
+                    onMenuClick = {
+                        menuRawApp = appRaw
+                    })
+            }
+            item {
+                if (appAndConfigs.isEmpty()) {
+                    Spacer(modifier = Modifier.height(40.dp))
+                    Column(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                    ) {
+                        if (searchStr.isNotEmpty()) {
+                            Text(text = stringResource(R.string.no_search_result))
+                        } else {
+                            Text(text = stringResource(R.string.subscription_no_rules))
                         }
                     }
                 }
-                item {
-                    Spacer(modifier = Modifier.height(20.dp))
-                }
-
             }
-        },
-    )
+            item {
+                Spacer(modifier = Modifier.height(20.dp))
+            }
+
+        }
+    }
 
     val subsItemVal = subsItem
 
@@ -246,7 +246,7 @@ fun SubsPage(
         }, onDismissRequest = { showAddDlg = false }, confirmButton = {
             TextButton(onClick = {
                 val newAppRaw = try {
-                    SubscriptionRaw.parseAppRaw(source)
+                    RawSubscription.parseRawApp(source)
                 } catch (e: Exception) {
                     LogUtils.d(e)
                     ToastUtils.showShort(app.getString(R.string.illegal_rule, e.message))
@@ -297,11 +297,9 @@ fun SubsPage(
                     }
                 }
                 vm.viewModelScope.launchTry {
-                    subsItemVal.subsFile.writeText(
-                        SubscriptionRaw.stringify(
-                            subsRaw.copy(
-                                apps = newApps, version = subsRaw.version + 1
-                            )
+                    updateSubscription(
+                        subsRaw.copy(
+                            apps = newApps, version = subsRaw.version + 1
                         )
                     )
                     DbSet.subsItemDao.update(subsItemVal.copy(mtime = System.currentTimeMillis()))
@@ -318,7 +316,7 @@ fun SubsPage(
         })
     }
 
-    val editAppRawVal = editAppRaw
+    val editAppRawVal = editRawApp
     if (editAppRawVal != null && subsItemVal != null && subsRaw != null) {
         var source by remember {
             mutableStateOf(json.encodeToJson5String(editAppRawVal))
@@ -327,31 +325,29 @@ fun SubsPage(
             OutlinedTextField(
                 value = source,
                 onValueChange = { source = it },
-                maxLines = 8,
+                maxLines = 10,
                 modifier = Modifier.fillMaxWidth(),
                 placeholder = { Text(text = stringResource(R.string.enter_rules)) },
             )
-        }, onDismissRequest = { editAppRaw = null }, confirmButton = {
+        }, onDismissRequest = { editRawApp = null }, confirmButton = {
             TextButton(onClick = {
                 try {
-                    val newAppRaw = SubscriptionRaw.parseAppRaw(source)
+                    val newAppRaw = RawSubscription.parseRawApp(source)
                     if (newAppRaw.id != editAppRawVal.id) {
                         ToastUtils.showShort(app.getString(R.string.cannot_edit_rule_id))
                         return@TextButton
                     }
                     val oldAppRawIndex = subsRaw.apps.indexOfFirst { a -> a.id == editAppRawVal.id }
                     vm.viewModelScope.launchTry {
-                        subsItemVal.subsFile.writeText(
-                            SubscriptionRaw.stringify(
-                                subsRaw.copy(
-                                    apps = subsRaw.apps.toMutableList().apply {
-                                        set(oldAppRawIndex, newAppRaw)
-                                    }, version = subsRaw.version + 1
-                                )
+                        updateSubscription(
+                            subsRaw.copy(
+                                apps = subsRaw.apps.toMutableList().apply {
+                                    set(oldAppRawIndex, newAppRaw)
+                                }, version = subsRaw.version + 1
                             )
                         )
                         DbSet.subsItemDao.update(subsItemVal.copy(mtime = System.currentTimeMillis()))
-                        editAppRaw = null
+                        editRawApp = null
                         ToastUtils.showShort(app.getString(R.string.update_success))
                     }
                 } catch (e: Exception) {
@@ -362,16 +358,16 @@ fun SubsPage(
                 Text(text = stringResource(R.string.add))
             }
         }, dismissButton = {
-            TextButton(onClick = { editAppRaw = null }) {
+            TextButton(onClick = { editRawApp = null }) {
                 Text(text = stringResource(R.string.cancel))
             }
         })
     }
 
 
-    val menuAppRawVal = menuAppRaw
+    val menuAppRawVal = menuRawApp
     if (menuAppRawVal != null && subsItemVal != null && subsRaw != null) {
-        Dialog(onDismissRequest = { menuAppRaw = null }) {
+        Dialog(onDismissRequest = { menuRawApp = null }) {
             Card(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -385,27 +381,23 @@ fun SubsPage(
                                 json.encodeToJson5String(menuAppRawVal)
                             )
                             ToastUtils.showShort(app.getString(R.string.delete_success))
-                            menuAppRaw = null
+                            menuRawApp = null
                         }
                         .fillMaxWidth()
                         .padding(16.dp))
                     Text(text = stringResource(R.string.delete), modifier = Modifier
-                        .clickable {
-                            // 也许需要二次确认
-                            vm.viewModelScope.launchTry(Dispatchers.IO) {
-                                subsItemVal.subsFile.writeText(
-                                    json.encodeToString(
-                                        subsRaw.copy(apps = subsRaw.apps.filter { a -> a.id != menuAppRawVal.id })
-                                    )
-                                )
-                                DbSet.subsItemDao.update(subsItemVal.copy(mtime = System.currentTimeMillis()))
-                                DbSet.subsConfigDao.delete(subsItemVal.id, menuAppRawVal.id)
-                                ToastUtils.showShort(app.getString(R.string.delete_success))
+                            .clickable {
+                                // 也许需要二次确认
+                                vm.viewModelScope.launchTry(Dispatchers.IO) {
+                                    updateSubscription(subsRaw.copy(apps = subsRaw.apps.filter { a -> a.id != menuAppRawVal.id }))
+                                    DbSet.subsItemDao.update(subsItemVal.copy(mtime = System.currentTimeMillis()))
+                                    DbSet.subsConfigDao.delete(subsItemVal.id, menuAppRawVal.id)
+                                    ToastUtils.showShort(app.getString(R.string.delete_success))
+                                }
+                                menuRawApp = null
                             }
-                            menuAppRaw = null
-                        }
-                        .fillMaxWidth()
-                        .padding(16.dp), color = MaterialTheme.colorScheme.error)
+                            .fillMaxWidth()
+                            .padding(16.dp), color = MaterialTheme.colorScheme.error)
                 }
             }
         }

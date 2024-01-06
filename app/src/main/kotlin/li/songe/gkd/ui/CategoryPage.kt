@@ -25,7 +25,6 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.RadioButton
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
@@ -37,6 +36,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -47,14 +47,16 @@ import com.blankj.utilcode.util.ToastUtils
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootNavGraph
 import kotlinx.coroutines.Dispatchers
-import kotlinx.serialization.encodeToString
+import li.songe.gkd.R
+import li.songe.gkd.app
 import li.songe.gkd.data.CategoryConfig
-import li.songe.gkd.data.SubscriptionRaw
+import li.songe.gkd.data.RawSubscription
 import li.songe.gkd.db.DbSet
+import li.songe.gkd.ui.component.PageScaffold
 import li.songe.gkd.util.LocalNavController
 import li.songe.gkd.util.ProfileTransitions
-import li.songe.gkd.util.json
 import li.songe.gkd.util.launchTry
+import li.songe.gkd.util.updateSubscription
 
 @RootNavGraph
 @Destination(style = ProfileTransitions::class)
@@ -71,19 +73,19 @@ fun CategoryPage(subsItemId: Long) {
         mutableStateOf(false)
     }
     val (menuCategory, setMenuCategory) = remember {
-        mutableStateOf<SubscriptionRaw.Category?>(null)
+        mutableStateOf<RawSubscription.RawCategory?>(null)
     }
     var editEnableCategory by remember {
-        mutableStateOf<SubscriptionRaw.Category?>(null)
+        mutableStateOf<RawSubscription.RawCategory?>(null)
     }
     val (editNameCategory, setEditNameCategory) = remember {
-        mutableStateOf<SubscriptionRaw.Category?>(null)
+        mutableStateOf<RawSubscription.RawCategory?>(null)
     }
 
     val categories = subsRaw?.categories ?: emptyList()
-    val categoriesGroups = subsRaw?.categoriesGroups ?: emptyMap()
+    val categoriesGroups = subsRaw?.categoryToGroupsMap ?: emptyMap()
 
-    Scaffold(topBar = {
+    PageScaffold(topBar = {
         TopAppBar(navigationIcon = {
             IconButton(onClick = {
                 navController.popBackStack()
@@ -93,7 +95,17 @@ fun CategoryPage(subsItemId: Long) {
                     contentDescription = null,
                 )
             }
-        }, title = { Text(text = subsRaw?.name ?: subsItemId.toString()) }, actions = {})
+        }, title = {
+            var name = subsRaw?.name ?: subsItemId.toString()
+            when (name) {
+                "本地订阅" -> {
+                    name = stringResource(R.string.local_subscription)
+                }
+                "默认订阅" -> {
+                    name = stringResource(R.string.default_subscription)
+                }
+            }
+            Text(text = "${name}/${stringResource(R.string.rule_category)}") }, actions = {})
     }, floatingActionButton = {
         if (editable) {
             FloatingActionButton(onClick = { showAddDlg = true }) {
@@ -105,7 +117,7 @@ fun CategoryPage(subsItemId: Long) {
         }
     }, content = { contentPadding ->
         LazyColumn(
-            modifier = Modifier.padding(contentPadding)
+            modifier = Modifier.padding(contentPadding).padding(start = 10.dp, end = 10.dp)
         ) {
             items(categories, { it.key }) { category ->
                 Row(modifier = Modifier
@@ -121,7 +133,7 @@ fun CategoryPage(subsItemId: Long) {
                         )
                         Spacer(modifier = Modifier.height(2.dp))
                         Text(
-                            text = if (size > 0) "${size}规则组" else "暂无规则", fontSize = 14.sp
+                            text = if (size > 0) stringResource(R.string.rule_group_count, size) else stringResource(R.string.no_rules), fontSize = 14.sp
                         )
                     }
                     if (editable) {
@@ -158,7 +170,7 @@ fun CategoryPage(subsItemId: Long) {
                 if (categories.isEmpty()) {
                     Spacer(modifier = Modifier.height(40.dp))
                     Text(
-                        text = "此订阅暂无类别",
+                        text = stringResource(R.string.no_category),
                         textAlign = TextAlign.Center,
                         modifier = Modifier.fillMaxWidth()
                     )
@@ -224,20 +236,20 @@ fun CategoryPage(subsItemId: Long) {
             mutableStateOf(editNameCategory.name)
         }
         AlertDialog(
-            title = { Text(text = "编辑类别") },
+            title = { Text(text = stringResource(R.string.edit_category)) },
             text = {
                 OutlinedTextField(
                     value = source,
                     onValueChange = { source = it.trim() },
                     modifier = Modifier.fillMaxWidth(),
-                    placeholder = { Text(text = "请输入类别名称") },
+                    placeholder = { Text(text = stringResource(R.string.enter_category_name)) },
                     singleLine = true
                 )
             },
             onDismissRequest = { setEditNameCategory(null) },
             dismissButton = {
                 TextButton(onClick = { setEditNameCategory(null) }) {
-                    Text(text = "取消")
+                    Text(text = stringResource(R.string.cancel))
                 }
             },
             confirmButton = {
@@ -245,12 +257,12 @@ fun CategoryPage(subsItemId: Long) {
                     enabled = source.isNotEmpty() && source != editNameCategory.name,
                     onClick = {
                         if (categories.any { c -> c.key != editNameCategory.key && c.name == source }) {
-                            ToastUtils.showShort("不可添加同名类别")
+                            ToastUtils.showShort(app.getString(R.string.cannot_add_same_category))
                             return@TextButton
                         }
                         vm.viewModelScope.launchTry(Dispatchers.IO) {
                             subsItem?.apply {
-                                subsFile.writeText(json.encodeToString(subsRawVal.copy(
+                                updateSubscription(subsRawVal.copy(
                                     categories = categories.toMutableList().apply {
                                         val i =
                                             categories.indexOfFirst { c -> c.key == editNameCategory.key }
@@ -258,14 +270,14 @@ fun CategoryPage(subsItemId: Long) {
                                             set(i, editNameCategory.copy(name = source))
                                         }
                                     }
-                                )))
+                                ))
                                 DbSet.subsItemDao.update(copy(mtime = System.currentTimeMillis()))
                             }
-                            ToastUtils.showShort("修改成功")
+                            ToastUtils.showShort(app.getString(R.string.edit_success))
                             setEditNameCategory(null)
                         }
                     }) {
-                    Text(text = "确认")
+                    Text(text = stringResource(R.string.confirm))
                 }
             }
         )
@@ -275,46 +287,46 @@ fun CategoryPage(subsItemId: Long) {
             mutableStateOf("")
         }
         AlertDialog(
-            title = { Text(text = "添加类别") },
+            title = { Text(text = stringResource(R.string.add_category)) },
             text = {
                 OutlinedTextField(
                     value = source,
                     onValueChange = { source = it.trim() },
                     modifier = Modifier.fillMaxWidth(),
-                    placeholder = { Text(text = "请输入类别名称") },
+                    placeholder = { Text(text = stringResource(R.string.enter_category_name)) },
                     singleLine = true
                 )
             },
             onDismissRequest = { showAddDlg = false },
             dismissButton = {
                 TextButton(onClick = { showAddDlg = false }) {
-                    Text(text = "取消")
+                    Text(text = stringResource(R.string.cancel))
                 }
             },
             confirmButton = {
                 TextButton(enabled = source.isNotEmpty(), onClick = {
                     if (categories.any { c -> c.name == source }) {
-                        ToastUtils.showShort("不可添加同名类别")
+                        ToastUtils.showShort(app.getString(R.string.cannot_add_same_category))
                         return@TextButton
                     }
                     showAddDlg = false
                     vm.viewModelScope.launchTry(Dispatchers.IO) {
                         subsItem?.apply {
-                            subsFile.writeText(json.encodeToString(subsRawVal.copy(
+                            updateSubscription(subsRawVal.copy(
                                 categories = categories.toMutableList().apply {
-                                    add(SubscriptionRaw.Category(
+                                    add(RawSubscription.RawCategory(
                                         key = (categories.maxOfOrNull { c -> c.key } ?: -1) + 1,
                                         name = source,
                                         enable = null
                                     ))
                                 }
-                            )))
+                            ))
                             DbSet.subsItemDao.update(copy(mtime = System.currentTimeMillis()))
-                            ToastUtils.showShort("添加成功")
+                            ToastUtils.showShort(app.getString(R.string.add_success))
                         }
                     }
                 }) {
-                    Text(text = "确认")
+                    Text(text = stringResource(R.string.confirm))
                 }
             }
         )
@@ -329,27 +341,27 @@ fun CategoryPage(subsItemId: Long) {
                 shape = RoundedCornerShape(16.dp),
             ) {
                 Column {
-                    Text(text = "编辑", modifier = Modifier
+                    Text(text = stringResource(R.string.edit), modifier = Modifier
                         .clickable {
                             setEditNameCategory(menuCategory)
                             setMenuCategory(null)
                         }
                         .padding(16.dp)
                         .fillMaxWidth())
-                    Text(text = "删除", modifier = Modifier
+                    Text(text = stringResource(R.string.delete), modifier = Modifier
                         .clickable {
                             vm.viewModelScope.launchTry(Dispatchers.IO) {
                                 subsItem?.apply {
-                                    subsFile.writeText(json.encodeToString(subsRawVal.copy(
+                                    updateSubscription(subsRawVal.copy(
                                         categories = subsRawVal.categories.filter { c -> c.key != menuCategory.key }
-                                    )))
+                                    ))
                                     DbSet.subsItemDao.update(copy(mtime = System.currentTimeMillis()))
                                 }
                                 DbSet.categoryConfigDao.deleteByCategoryKey(
                                     subsItemId,
                                     menuCategory.key
                                 )
-                                ToastUtils.showShort("删除成功")
+                                ToastUtils.showShort(app.getString(R.string.delete_success))
                                 setMenuCategory(null)
                             }
                         }

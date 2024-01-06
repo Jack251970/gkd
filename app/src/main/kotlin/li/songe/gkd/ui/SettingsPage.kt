@@ -15,6 +15,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.KeyboardArrowRight
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
 import androidx.compose.material3.Divider
@@ -57,7 +58,8 @@ import li.songe.gkd.ui.destinations.AboutPageDestination
 import li.songe.gkd.ui.destinations.DebugPageDestination
 import li.songe.gkd.util.LoadStatus
 import li.songe.gkd.util.LocalNavController
-import li.songe.gkd.util.SafeR
+import li.songe.gkd.util.authActionFlow
+import li.songe.gkd.util.canDrawOverlaysAuthAction
 import li.songe.gkd.util.checkUpdate
 import li.songe.gkd.util.checkUpdatingFlow
 import li.songe.gkd.util.launchTry
@@ -68,11 +70,12 @@ import li.songe.gkd.util.updateStorage
 import java.io.File
 
 val settingsNav = BottomNavItem(
-    label = app.getString(R.string.settings), icon = SafeR.ic_cog, route = "settings"
+    label = app.getString(R.string.settings), icon = Icons.Default.Settings
 )
 
 @Composable
 fun SettingsPage() {
+    Icons.Default.Settings
     val context = LocalContext.current as MainActivity
     val navController = LocalNavController.current
     val store by storeFlow.collectAsState()
@@ -132,14 +135,15 @@ fun SettingsPage() {
                 showToastInputDlg = true
             },
             onCheckedChange = {
+                if (it && !Settings.canDrawOverlays(context)) {
+                    authActionFlow.value = canDrawOverlaysAuthAction
+                    return@TextSwitch
+                }
                 updateStorage(
                     storeFlow, store.copy(
                         toastWhenClick = it
                     )
                 )
-                if (it && !Settings.canDrawOverlays(context)) {
-                    ToastUtils.showShort(context.getString(R.string.enable_overlay_permission_first))
-                }
             })
         Divider()
 
@@ -149,9 +153,7 @@ fun SettingsPage() {
             }
             .padding(10.dp, 15.dp), verticalAlignment = Alignment.CenterVertically) {
             Text(
-                modifier = Modifier.weight(1f),
-                text = stringResource(R.string.auto_update_subscription),
-                fontSize = 18.sp,
+                modifier = Modifier.weight(1f), text = stringResource(R.string.auto_update_subscription), fontSize = 18.sp
             )
             Row(
                 verticalAlignment = Alignment.CenterVertically
@@ -179,17 +181,15 @@ fun SettingsPage() {
             })
         Divider()
 
-        SettingItem(title = if (checkUpdating)
-            stringResource(R.string.checking_update) else stringResource(R.string.check_update),
-            onClick = {
-                appScope.launchTry {
-                    if (checkUpdatingFlow.value) return@launchTry
-                    val newVersion = checkUpdate()
-                    if (newVersion == null) {
-                        ToastUtils.showShort(context.getString(R.string.no_update))
-                    }
+        SettingItem(title = if (checkUpdating) stringResource(R.string.checking_update) else stringResource(R.string.check_update), onClick = {
+            appScope.launchTry {
+                if (checkUpdatingFlow.value) return@launchTry
+                val newVersion = checkUpdate()
+                if (newVersion == null) {
+                    ToastUtils.showShort(context.getString(R.string.no_update))
                 }
-            })
+            }
+        })
         Divider()
 
         Row(modifier = Modifier
@@ -505,6 +505,7 @@ fun SettingsPage() {
 
 val updateTimeRadioOptions = app.resources.getStringArray(R.array.update_time_options)
     .zip(listOf(-1L, 60 * 60_000L, 6 * 60 * 60_000L, 12 * 60 * 60_000L, 24 * 60 * 60_000L))
+
 val darkThemeRadioOptions = app.resources.getStringArray(R.array.dark_theme_options)
     .zip(listOf(null, true, false))
 val enableGroupRadioOptions = app.resources.getStringArray(R.array.enable_group_options)

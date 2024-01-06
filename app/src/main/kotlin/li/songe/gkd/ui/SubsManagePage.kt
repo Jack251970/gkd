@@ -18,6 +18,7 @@ import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.FormatListBulleted
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
 import androidx.compose.material3.Divider
@@ -55,20 +56,22 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import li.songe.gkd.R
 import li.songe.gkd.app
+import li.songe.gkd.data.RawSubscription
 import li.songe.gkd.data.SubsItem
-import li.songe.gkd.data.SubscriptionRaw
 import li.songe.gkd.db.DbSet
 import li.songe.gkd.ui.component.PageScaffold
 import li.songe.gkd.ui.component.SubsItemCard
 import li.songe.gkd.ui.destinations.CategoryPageDestination
+import li.songe.gkd.ui.destinations.GlobalRulePageDestination
 import li.songe.gkd.ui.destinations.SubsPageDestination
 import li.songe.gkd.util.DEFAULT_SUBS_UPDATE_URL
 import li.songe.gkd.util.LocalNavController
-import li.songe.gkd.util.SafeR
 import li.songe.gkd.util.formatTimeAgo
 import li.songe.gkd.util.launchAsFn
+import li.songe.gkd.util.launchTry
 import li.songe.gkd.util.navigate
 import li.songe.gkd.util.shareFile
+import li.songe.gkd.util.subsFolder
 import li.songe.gkd.util.subsIdToRawFlow
 import li.songe.gkd.util.subsItemsFlow
 import org.burnoutcrew.reorderable.ReorderableItem
@@ -77,9 +80,8 @@ import org.burnoutcrew.reorderable.rememberReorderableLazyListState
 import org.burnoutcrew.reorderable.reorderable
 
 val subsNav = BottomNavItem(
-    label = app.getString(R.string.subscription), icon = SafeR.ic_link, route = "subscription"
+    label = app.getString(R.string.subscription), icon = Icons.Default.FormatListBulleted
 )
-
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
@@ -108,7 +110,7 @@ fun SubsManagePage() {
     var link by remember { mutableStateOf("") }
 
     val (showSubsRaw, setShowSubsRaw) = remember {
-        mutableStateOf<SubscriptionRaw?>(null)
+        mutableStateOf<RawSubscription?>(null)
     }
 
 
@@ -150,69 +152,65 @@ fun SubsManagePage() {
                 )
             }
         },
-        content = { _ ->
-            Box(
+    ) { _ ->
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .pullRefresh(pullRefreshState, subItems.isNotEmpty())
+        ) {
+            LazyColumn(
+                state = state.listState,
                 modifier = Modifier
-                    .fillMaxSize()
-                    .pullRefresh(pullRefreshState, subItems.isNotEmpty())
+                    .reorderable(state)
+                    .detectReorderAfterLongPress(state)
+                    .fillMaxHeight(),
+                verticalArrangement = Arrangement.spacedBy(4.dp),
             ) {
-                LazyColumn(
-                    state = state.listState,
-                    modifier = Modifier
-                        .reorderable(state)
-                        .detectReorderAfterLongPress(state)
-                        .fillMaxHeight(),
-                    verticalArrangement = Arrangement.spacedBy(4.dp),
-                ) {
-                    itemsIndexed(orderSubItems.value, { _, subItem -> subItem.id }) { index, subItem ->
-                        ReorderableItem(state, key = subItem.id) { isDragging ->
-                            val elevation = animateDpAsState(
-                                if (isDragging) 16.dp else 0.dp, label = ""
-                            )
-                            Card(
-                                modifier = Modifier
-                                    .shadow(elevation.value)
-                                    .animateItemPlacement()
-                                    .padding(vertical = 3.dp, horizontal = 8.dp)
-                                    .clickable {
-                                        navController.navigate(SubsPageDestination(subItem.id))
-                                    },
-                                shape = RoundedCornerShape(8.dp),
-                            ) {
-                                val subsRaw = subsIdToRaw[subItem.id]
-                                var name = subsRaw?.name ?: subItem.id.toString()
-                                when (name) {
-                                    "本地订阅" -> {
-                                        name = stringResource(R.string.local_subscription)
-                                    }
-                                    "默认订阅" -> {
-                                        name = stringResource(R.string.default_subscription)
-                                    }
+                itemsIndexed(orderSubItems.value, { _, subItem -> subItem.id }) { index, subItem ->
+                    ReorderableItem(state, key = subItem.id) { isDragging ->
+                        val elevation = animateDpAsState(
+                            if (isDragging) 16.dp else 0.dp, label = ""
+                        )
+                        Card(
+                            modifier = Modifier
+                                .shadow(elevation.value)
+                                .animateItemPlacement()
+                                .padding(vertical = 3.dp, horizontal = 8.dp)
+                                .clickable {
+                                    menuSubItem = subItem
+                                },
+                            shape = RoundedCornerShape(8.dp),
+                        ) {
+                            var subsRaw = subsIdToRaw[subItem.id]
+                            var name = subsRaw?.name ?: subItem.id.toString()
+                            when (name) {
+                                "本地订阅" -> {
+                                    name = stringResource(R.string.local_subscription)
                                 }
-                                subsRaw?.name = name
-                                SubsItemCard(
-                                    subsItem = subItem,
-                                    subscriptionRaw = subsRaw,
-                                    index = index + 1,
-                                    onMenuClick = {
-                                        menuSubItem = subItem
-                                    },
-                                    onCheckedChange = vm.viewModelScope.launchAsFn<Boolean> {
-                                        DbSet.subsItemDao.update(subItem.copy(enable = it))
-                                    },
-                                )
+                                "默认订阅" -> {
+                                    name = stringResource(R.string.default_subscription)
+                                }
                             }
+                            subsRaw = subsRaw?.copy(name = name)
+                            SubsItemCard(
+                                subsItem = subItem,
+                                rawSubscription = subsRaw,
+                                index = index + 1,
+                                onCheckedChange = vm.viewModelScope.launchAsFn<Boolean> {
+                                    DbSet.subsItemDao.update(subItem.copy(enable = it))
+                                },
+                            )
                         }
                     }
                 }
-                PullRefreshIndicator(
-                    refreshing = refreshing,
-                    state = pullRefreshState,
-                    modifier = Modifier.align(Alignment.TopCenter),
-                )
             }
-        },
-    )
+            PullRefreshIndicator(
+                refreshing = refreshing,
+                state = pullRefreshState,
+                modifier = Modifier.align(Alignment.TopCenter),
+            )
+        }
+    }
 
     menuSubItem?.let { menuSubItemVal ->
 
@@ -234,7 +232,7 @@ fun SubsManagePage() {
                             .fillMaxWidth()
                             .padding(16.dp))
                         Divider()
-                        Text(text = "查看类别", modifier = Modifier
+                        Text(text = stringResource(R.string.view_category), modifier = Modifier
                             .clickable {
                                 menuSubItem = null
                                 navController.navigate(CategoryPageDestination(subsRawVal.id))
@@ -242,15 +240,23 @@ fun SubsManagePage() {
                             .fillMaxWidth()
                             .padding(16.dp))
                         Divider()
+                        Text(text = stringResource(R.string.global_rules), modifier = Modifier
+                            .clickable {
+                                menuSubItem = null
+                                navController.navigate(GlobalRulePageDestination(subsRawVal.id))
+                            }
+                            .fillMaxWidth()
+                            .padding(16.dp))
+                        Divider()
                     }
-                    if (menuSubItemVal.id < 0 && subsRawVal != null && menuSubItemVal.subsFile.exists()) {
+                    if (menuSubItemVal.id < 0 && subsRawVal != null) {
                         Text(text = stringResource(R.string.share_files), modifier = Modifier
                             .clickable {
                                 menuSubItem = null
-                                context.shareFile(
-                                    menuSubItemVal.subsFile,
-                                    context.getString(R.string.share_files)
-                                )
+                                vm.viewModelScope.launchTry {
+                                    val subsFile = subsFolder.resolve("${menuSubItemVal.id}.json")
+                                    context.shareFile(subsFile, context.getString(R.string.share_subscription_files))
+                                }
                             }
                             .fillMaxWidth()
                             .padding(16.dp))

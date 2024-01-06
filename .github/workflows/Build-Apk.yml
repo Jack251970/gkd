@@ -1,0 +1,47 @@
+name: Build-Apk
+
+on:
+  workflow_dispatch:
+
+  push:
+    branches:
+      - '**'
+
+jobs:
+  build:
+    if: ${{ !startsWith(github.event.head_commit.message, 'chore:') }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v3
+        with:
+          distribution: 'adopt'
+          java-version: '17'
+
+      - name: write secrets info
+        run: |
+          echo GKD_BUGLY_APP_ID='${{ secrets.GKD_BUGLY_APP_ID }}' >> gradle.properties
+          echo ${{ secrets.GKD_STORE_FILE_BASE64 }} | base64 --decode > ${{ github.workspace }}/key.jks
+          echo GKD_STORE_FILE='${{ github.workspace }}/key.jks' >> gradle.properties
+          echo GKD_STORE_PASSWORD='${{ secrets.GKD_STORE_PASSWORD }}' >> gradle.properties
+          echo GKD_KEY_ALIAS='${{ secrets.GKD_KEY_ALIAS }}' >> gradle.properties
+          echo GKD_KEY_PASSWORD='${{ secrets.GKD_KEY_PASSWORD }}' >> gradle.properties
+
+      - run: chmod 777 ./gradlew
+      - run: ./gradlew build
+
+      - uses: actions/upload-artifact@v3
+        with:
+          name: outputs
+          path: app/build/outputs
+
+      - uses: actions/upload-artifact@v3
+        with:
+          name: release
+          path: app/build/outputs/apk/release
+
+      - uses: actions/upload-artifact@v3
+        with:
+          name: debug
+          path: app/build/outputs/apk/debug

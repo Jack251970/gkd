@@ -20,7 +20,6 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -32,23 +31,32 @@ import coil.request.ImageRequest
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootNavGraph
 import li.songe.gkd.R
+import li.songe.gkd.data.RawSubscription
 import li.songe.gkd.util.LocalNavController
+import li.songe.gkd.util.ProfileTransitions
 import li.songe.gkd.util.appInfoCacheFlow
 import li.songe.gkd.util.imageLoader
 import li.songe.gkd.util.subsIdToRawFlow
 
 
 @RootNavGraph
-@Destination
+@Destination(style = ProfileTransitions::class)
 @Composable
-fun GroupItemPage(subsInt: Long, appId: String, groupKey: Int) {
+fun GroupItemPage(subsInt: Long, groupKey: Int, appId: String? = null) {
+    val context = LocalContext.current
     val navController = LocalNavController.current
-    val subsIdToRawState = subsIdToRawFlow.collectAsState()
-    val appRaw = remember {
-        subsIdToRawState.value[subsInt]?.apps?.first { a -> a.id == appId }
+    val subsIdToRaw by subsIdToRawFlow.collectAsState()
+    val rawSubs = subsIdToRaw[subsInt]
+    val rawApp = rawSubs?.apps?.first { a -> a.id == appId }
+    val group = if (appId == null) {
+        rawSubs?.globalGroups?.find { g -> g.key == groupKey }
+    } else {
+        rawApp?.groups?.find { g -> g.key == groupKey }
     }
-    val group = remember {
-        appRaw?.groups?.find { g -> g.key == groupKey }
+    val allExampleUrls = when (group) {
+        is RawSubscription.RawAppGroup -> group.allExampleUrls
+        is RawSubscription.RawGlobalGroup -> group.allExampleUrls
+        else -> emptyList()
     }
     val appInfoCache by appInfoCacheFlow.collectAsState()
     Box(modifier = Modifier.fillMaxSize()) {
@@ -64,10 +72,27 @@ fun GroupItemPage(subsInt: Long, appId: String, groupKey: Int) {
                 }
             },
             title = {
-                Text(
-                    text = ((appInfoCache[appId]?.name ?: appRaw?.name
-                    ?: appId) + "/" + (group?.name ?: stringResource(R.string.unknown_rule)))
-                )
+                when (group) {
+                    is RawSubscription.RawAppGroup -> {
+                        Text(
+                            text = ((rawSubs?.name
+                                ?: subsInt.toString()) + "/" + (appInfoCache[appId]?.name
+                                ?: rawApp?.name
+                                ?: appId) + "/" + (group.name))
+                        )
+                    }
+
+                    is RawSubscription.RawGlobalGroup -> {
+                        Text(
+                            text = "${rawSubs?.name ?: subsInt}/${group.name}"
+                        )
+                    }
+
+                    else -> {
+                        Text(text = stringResource(R.string.unknown_rule))
+                    }
+
+                }
             },
             actions = {},
             modifier = Modifier.zIndex(1f),
@@ -76,14 +101,14 @@ fun GroupItemPage(subsInt: Long, appId: String, groupKey: Int) {
             )
         )
         if (group != null) {
-            val state = rememberPagerState { group.allExampleUrls.size }
+            val state = rememberPagerState { allExampleUrls.size }
             HorizontalPager(
                 modifier = Modifier.fillMaxSize(), state = state
             ) { p ->
-                val url = group.allExampleUrls.getOrNull(p)
+                val url = allExampleUrls.getOrNull(p)
                 if (url != null) {
                     SubcomposeAsyncImage(
-                        model = ImageRequest.Builder(LocalContext.current).data(url)
+                        model = ImageRequest.Builder(context).data(url)
                             .crossfade(DefaultDurationMillis).build(),
                         contentDescription = null,
                         modifier = Modifier.fillMaxWidth(),

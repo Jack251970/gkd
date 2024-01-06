@@ -9,6 +9,8 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.encodeToString
+import li.songe.gkd.R
+import li.songe.gkd.app
 import li.songe.gkd.appScope
 
 private inline fun <reified T> createStorageFlow(
@@ -45,6 +47,7 @@ fun <T> updateStorage(stateFlow: StateFlow<T>, newState: T) {
 @Serializable
 data class Store(
     val enableService: Boolean = true,
+    val enableStatusService: Boolean = true,
     val excludeFromRecents: Boolean = false,
     val captureScreenshot: Boolean = false,
     val httpServerPort: Int = 8888,
@@ -52,14 +55,13 @@ data class Store(
     val captureVolumeChange: Boolean = false,
     val autoCheckAppUpdate: Boolean = true,
     val toastWhenClick: Boolean = true,
-    val clickToast: String = "跳过",
+    val clickToast: String = app.getString(R.string.skip),
     val autoClearMemorySubs: Boolean = true,
     val hideSnapshotStatusBar: Boolean = false,
     val enableShizuku: Boolean = false,
     val log2FileSwitch: Boolean = true,
     val enableDarkTheme: Boolean? = null,
     val enableAbFloatWindow: Boolean = true,
-    val matchUnknownApp: Boolean = false,
 )
 
 val storeFlow by lazy {

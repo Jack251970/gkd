@@ -4,16 +4,17 @@ import android.content.Context
 import android.content.Intent
 import android.view.ViewConfiguration
 import androidx.compose.foundation.layout.size
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.CenterFocusWeak
 import androidx.compose.material3.Icon
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
-import com.blankj.utilcode.util.ServiceUtils
 import com.blankj.utilcode.util.ToastUtils
 import com.torrydo.floatingbubbleview.FloatingBubbleListener
 import com.torrydo.floatingbubbleview.service.expandable.BubbleBuilder
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.MutableStateFlow
 import li.songe.gkd.app
 import li.songe.gkd.appScope
 import li.songe.gkd.composition.CompositionExt.useLifeCycleLog
@@ -22,17 +23,15 @@ import li.songe.gkd.data.Tuple3
 import li.songe.gkd.notif.createNotif
 import li.songe.gkd.notif.floatingChannel
 import li.songe.gkd.notif.floatingNotif
-import li.songe.gkd.util.SafeR
 import li.songe.gkd.util.launchTry
 import kotlin.math.sqrt
 
 class FloatingService : CompositionFbService({
     useLifeCycleLog()
-
     configBubble { resolve ->
         val builder = BubbleBuilder(this).bubbleCompose {
             Icon(
-                painter = painterResource(SafeR.ic_capture),
+                imageVector = Icons.Default.CenterFocusWeak,
                 contentDescription = "capture",
                 modifier = Modifier.size(40.dp),
                 tint = Color.Red
@@ -74,6 +73,11 @@ class FloatingService : CompositionFbService({
         })
         resolve(builder)
     }
+
+    isRunning.value = true
+    onDestroy {
+        isRunning.value = false
+    }
 }) {
 
     override fun onCreate() {
@@ -86,11 +90,9 @@ class FloatingService : CompositionFbService({
     }
 
     companion object {
-        fun isRunning() = ServiceUtils.isServiceRunning(FloatingService::class.java)
+        val isRunning = MutableStateFlow(false)
         fun stop(context: Context = app) {
-            if (isRunning()) {
-                context.stopService(Intent(context, FloatingService::class.java))
-            }
+            context.stopService(Intent(context, FloatingService::class.java))
         }
     }
 }

@@ -12,6 +12,7 @@ val AccessibilityService.safeActiveWindow: AccessibilityNodeInfo?
     get() = try {
         // java.lang.SecurityException: Call from user 0 as user -2 without permission INTERACT_ACROSS_USERS or INTERACT_ACROSS_USERS_FULL not allowed.
         rootInActiveWindow
+        // 在主线程调用会阻塞界面导致卡顿
     } catch (e: Exception) {
         e.printStackTrace()
         null
@@ -103,10 +104,11 @@ private fun AccessibilityNodeInfo.getTempRect(): Rect {
 
 
 // https://github.com/gkd-kit/gkd/issues/115
-private const val MAX_CHILD_SIZE = 256
+// 限制节点遍历的数量避免内存溢出
+private const val MAX_CHILD_SIZE = 512
 private const val MAX_DESCENDANTS_SIZE = 4096
 
-private val getChildren: (AccessibilityNodeInfo) -> Sequence<AccessibilityNodeInfo> = { node ->
+val getChildren: (AccessibilityNodeInfo) -> Sequence<AccessibilityNodeInfo> = { node ->
     sequence {
         repeat(node.childCount.coerceAtMost(MAX_CHILD_SIZE)) { i ->
             val child = node.getChild(i) ?: return@sequence
@@ -119,10 +121,15 @@ private val getAttr: (AccessibilityNodeInfo, String) -> Any? = { node, name ->
     when (name) {
         "id" -> node.viewIdResourceName
         "vid" -> node.viewIdResourceName?.let { id ->
-            id.subSequence(
-                (node.packageName?.length ?: 0) + ":id/".length,
-                id.length
-            )
+            val appId = node.packageName
+            if (appId != null && id.startsWith(appId) && id.startsWith(":id/", appId.length)) {
+                id.subSequence(
+                    appId.length + ":id/".length,
+                    id.length
+                )
+            } else {
+                null
+            }
         }
 
         "name" -> node.className
@@ -132,9 +139,10 @@ private val getAttr: (AccessibilityNodeInfo, String) -> Any? = { node, name ->
         "desc.length" -> node.contentDescription?.length
 
         "clickable" -> node.isClickable
+        "focusable" -> node.isFocusable
         "checkable" -> node.isCheckable
         "checked" -> node.isChecked
-        "focusable" -> node.isFocusable
+        "editable" -> node.isEditable
         "longClickable" -> node.isLongClickable
         "visibleToUser" -> node.isVisibleToUser
 
@@ -163,6 +171,7 @@ val abTransform = Transform(
         sequence {
             val stack = getChildren(node).toMutableList()
             if (stack.isEmpty()) return@sequence
+            stack.reverse()
             val tempNodes = mutableListOf<AccessibilityNodeInfo>()
             do {
                 val top = stack.removeLast()

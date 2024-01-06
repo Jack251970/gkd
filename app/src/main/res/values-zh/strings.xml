@@ -19,12 +19,12 @@
     <!-- about page -->
     <string name="about">关于</string>
     <string name="app_desc">一款基于&#160;无障碍，高级选择器与订阅规则&#160;的自定义屏幕点击软件。</string>
-    <string name="app_desc_appendix">注：本版本为克隆版本，基于源项目进行了一定的定制和优化。</string>
+    <string name="app_desc_appendix">注：本版本为修改版本，基于源项目进行了一定的定制和优化。</string>
     <string name="and_divider">，</string>
     <string name="project_author">项目作者：</string>
     <string name="opensource_address">开源地址：</string>
     <string name="original_opensource_address">源项目</string>
-    <string name="forked_opensource_address">克隆项目</string>
+    <string name="forked_opensource_address">修改项目</string>
     <string name="version_code">版本代码：%d</string>
     <string name="version_name">版本名称：%s</string>
     <string name="build_date">构建时间：%s</string>
@@ -33,18 +33,17 @@
     <!-- subscription manage page -->
     <string name="subscription">订阅</string>
     <string name="view_rules">查看规则</string>
+    <string name="view_category">查看类别</string>
+    <string name="global_rules">全局规则</string>
     <string name="share_files">分享文件</string>
     <string name="copy_link">复制链接</string>
     <string name="feedback">问题反馈</string>
     <string name="delete_subscription">删除订阅</string>
-
     <string name="share_subscription_files">分享订阅文件</string>
     <string name="copy_success">复制成功</string>
     <string name="if_delete">是否删除%s？</string>
-
     <string name="import_default_subscription">导入默认订阅</string>
     <string name="import_other_subscription">导入其他订阅</string>
-
     <string name="enter_subscription_link">请输入订阅链接</string>
     <string name="illegal_link">非法链接</string>
     <string name="link_exists">链接已存在</string>
@@ -67,9 +66,17 @@
     <string name="overlay_permission_desc">后台提示，显示保存快照按钮等功能</string>
     <string name="enable_service">启用服务</string>
     <string name="enable_service_desc">保持服务开启，根据订阅规则匹配屏幕目标节点</string>
+    <string name="stay_notification_bar">常驻通知栏</string>
+    <string name="stay_notification_bar_desc">在通知栏显示服务运行状态，避免被某些系统回收</string>
     <string name="click_history">点击记录</string>
     <string name="quickly_locate_disabling_rules_here">如误触可在此快速定位禁用规则</string>
     <string name="latest_clicking">最近点击：%s</string>
+
+    <!-- click log page -->
+    <string name="disable_rule_in_app">在此应用禁用此规则</string>
+    <string name="disable_already_exist">禁用已存在</string>
+    <string name="update_disable">更新禁用</string>
+    <string name="delete_history">删除记录</string>
 
     <!-- settings page -->
     <string name="settings">设置</string>
@@ -108,7 +115,7 @@
     <string name="detect_new_version">检测到新版本</string>
     <string name="download_new_version">下载更新</string>
     <string name="update_from_source_project">注意：本更新来自源项目，如无特殊需求请勿安装。</string>
-    <string name="note_install_update_from_source_project">安装本更新后将无法再收到克隆项目的更新。同时，来自克隆项目的特性也将丢失，例如英文的显示支持，部分界面的交互优化等。</string>
+    <string name="note_install_update_from_source_project">安装本更新后将无法再收到修改项目的更新。同时，来自修改项目的特性也将丢失，例如英文的显示支持，部分界面的交互优化等。</string>
     <string name="downloading_new_version">下载更新中</string>
     <string name="stop_download">终止下载</string>
     <string name="download_success">下载完成</string>
@@ -134,7 +141,8 @@
     <string name="match_unknown_apps">匹配未知应用</string>
     <string name="match_unknown_apps_desc">匹配不在安装列表中（其它用户空间）的应用</string>
     <string name="http_service">HTTP服务</string>
-    <string name="http_service_desc">开启HTTP服务，以便在同一局域网下传递数据</string>
+    <string name="http_service_desc1">浏览器打开下面任意链接即可自动连接</string>
+    <string name="http_service_desc2">开启HTTP服务在同一局域网下连接调试工具</string>
     <string name="http_service_port">HTTP服务端口：%d</string>
     <string name="auto_clear_subscription_cache">自动清除订阅缓存</string>
     <string name="auto_clear_subscription_cache_desc">当HTTP服务关闭时，清除内存订阅</string>
@@ -164,7 +172,11 @@
     <string name="replace_success">替换成功</string>
     <string name="if_delete_all_snapshot_history">是否删除全部快照记录？</string>
 
+    <!-- store -->
+    <string name="skip">跳过</string>
+
     <!-- subscription page -->
+    <string name="application_rules">应用规则</string>
     <string name="enter_app_name">请输入应用名称</string>
     <string name="local_subscription">本地订阅</string>
     <string name="default_subscription">默认订阅</string>
@@ -190,10 +202,14 @@
     <string name="copy_rule_group">复制规则组</string>
     <string name="edit">编辑</string>
     <string name="edit_rule_group">编辑规则组</string>
+    <string name="delete_rule_group">删除规则组</string>
     <string name="enter_rule_group">请输入规则组</string>
     <string name="rule_group_unchanged">规则无变动</string>
     <string name="cannot_change_rule_group_key">不能更改规则组的key</string>
     <string name="illegal_rule_selector_illegal">非法规则：存在非法选择器</string>
+    <string name="edit_disabled_item">编辑禁用项</string>
+    <string name="edit_disabled_item_placeholder1">请填入需要禁用的activityId\n以换行或英文逗号分割</string>
+    <string name="disabled_item_unchanged">禁用项无变动</string>
     <string name="add_rule_group">添加规则组</string>
     <string name="enter_rule_group_either_app_rule_or_single_rule_group">请输入规则组\n可以是APP规则\n也可以是单个规则组</string>
     <string name="add_fail_inconsistent_id">添加失败，id不一致</string>
@@ -231,4 +247,19 @@
     <string name="time_ago_hour">%d小时前</string>
     <string name="time_ago_minute">%d分钟前</string>
     <string name="time_ago_just_now">刚刚</string>
+
+    <!-- category page -->
+    <string name="rule_category">规则类别</string>
+    <string name="rule_group_count">%d规则组</string>
+    <string name="no_category">暂无类别</string>
+    <string name="edit_category">编辑类别</string>
+    <string name="enter_category_name">请输入类别名称</string>
+    <string name="cannot_add_same_category">不可添加同名类别</string>
+    <string name="edit_success">修改成功</string>
+    <string name="add_category">添加类别</string>
+
+    <!-- global rule page -->
+    <string name="illegal_selector">非法选择器</string>
+    <string name="add_global_rule_group">添加全局规则组</string>
+    <string name="edit_disabled_item_placeholder2">请填入需要禁用的appId/activityId\n以换行或英文逗号分割，示例：\ntv.danmaku.bili表示在应用内禁用规则\ntv.danmaku.bili/tv.danmaku.bili.MainActivityV2表示在应用内某页面禁用规则</string>
 </resources>

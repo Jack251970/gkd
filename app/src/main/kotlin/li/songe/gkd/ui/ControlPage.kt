@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.KeyboardArrowRight
 import androidx.compose.material3.Divider
 import androidx.compose.material3.Icon
@@ -26,29 +27,25 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.core.app.NotificationManagerCompat
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.blankj.utilcode.util.ToastUtils
-import kotlinx.coroutines.Dispatchers
 import li.songe.gkd.MainActivity
 import li.songe.gkd.R
 import li.songe.gkd.app
 import li.songe.gkd.appScope
 import li.songe.gkd.service.GkdAbService
+import li.songe.gkd.service.ManageService
 import li.songe.gkd.ui.component.AuthCard
 import li.songe.gkd.ui.component.TextSwitch
 import li.songe.gkd.ui.destinations.ClickLogPageDestination
 import li.songe.gkd.util.LocalNavController
-import li.songe.gkd.util.SafeR
+import li.songe.gkd.util.checkOrRequestNotifPermission
 import li.songe.gkd.util.launchTry
 import li.songe.gkd.util.navigate
 import li.songe.gkd.util.storeFlow
 import li.songe.gkd.util.updateStorage
 import li.songe.gkd.util.usePollState
 
-val controlNav = BottomNavItem(
-    label = app.getString(R.string.homepage), icon = SafeR.ic_home, route = "control"
-)
+val controlNav = BottomNavItem(label = app.getString(R.string.homepage), icon = Icons.Default.Home)
 
 @Composable
 fun ControlPage() {
@@ -59,52 +56,70 @@ fun ControlPage() {
     val subsStatus by vm.subsStatusFlow.collectAsState()
     val store by storeFlow.collectAsState()
 
-    val gkdAccessRunning by usePollState { GkdAbService.isRunning() }
-    val notifyEnabled by usePollState {
-        NotificationManagerCompat.from(context).areNotificationsEnabled()
-    }
+    val gkdAccessRunning by GkdAbService.isRunning.collectAsState()
+    val manageRunning by ManageService.isRunning.collectAsState()
     val canDrawOverlays by usePollState { Settings.canDrawOverlays(context) }
-
 
     Column(
         modifier = Modifier.verticalScroll(
             state = rememberScrollState()
         )
     ) {
-        if (!notifyEnabled) {
-            AuthCard(title = stringResource(R.string.notification_permission),
-                desc = stringResource(R.string.notification_permission_desc),
-                onAuthClick = {
-                val intent = Intent()
-                intent.action = Settings.ACTION_APP_NOTIFICATION_SETTINGS
-                intent.putExtra(Settings.EXTRA_APP_PACKAGE, context.packageName)
-                intent.putExtra(Settings.EXTRA_CHANNEL_ID, context.applicationInfo.uid)
-                context.startActivity(intent)
-            })
-            Divider()
-        }
-
         if (!gkdAccessRunning) {
             AuthCard(title = stringResource(R.string.accessibility_permission),
                 desc = stringResource(R.string.accessibility_permission_desc),
                 onAuthClick = {
-                    if (notifyEnabled) {
-                        appScope.launchTry(Dispatchers.IO) {
-                            val intent = Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS)
-                            intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
-                            // android.content.ActivityNotFoundException
-                            // https://bugly.qq.com/v2/crash-reporting/crashes/d0ce46b353/113010?pid=1
-                            context.startActivity(intent)
-                        }
-                    } else {
-                        ToastUtils.showShort(context.getString(R.string.enable_notification_permission_first))
+                    appScope.launchTry {
+                        val intent = Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS)
+                        intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
+                        // android.content.ActivityNotFoundException
+                        context.startActivity(intent)
                     }
                 })
-            Divider()
+        } else {
+            TextSwitch(
+                name = stringResource(R.string.enable_service),
+                desc = stringResource(R.string.enable_service_desc),
+                checked = store.enableService,
+                onCheckedChange = {
+                    updateStorage(
+                        storeFlow, store.copy(
+                            enableService = it
+                        )
+                    )
+                })
         }
+        Divider()
+
+        TextSwitch(
+            name = stringResource(R.string.stay_notification_bar),
+            desc = stringResource(R.string.stay_notification_bar_desc),
+            checked = manageRunning && store.enableStatusService,
+            onCheckedChange = {
+                if (it) {
+                    if (!checkOrRequestNotifPermission(context)) {
+                        return@TextSwitch
+                    }
+                    updateStorage(
+                        storeFlow, store.copy(
+                            enableStatusService = true
+                        )
+                    )
+                    ManageService.start(context)
+                } else {
+                    updateStorage(
+                        storeFlow, store.copy(
+                            enableStatusService = false
+                        )
+                    )
+                    ManageService.stop(context)
+                }
+            })
+        Divider()
 
         if (!canDrawOverlays) {
-            AuthCard(title = stringResource(R.string.overlay_permission),
+            AuthCard(
+                title = stringResource(R.string.overlay_permission),
                 desc = stringResource(R.string.overlay_permission_desc),
                 onAuthClick = {
                     val intent = Intent(
@@ -116,20 +131,6 @@ fun ControlPage() {
             Divider()
         }
 
-        if (gkdAccessRunning) {
-            TextSwitch(name = stringResource(R.string.enable_service),
-                desc = stringResource(R.string.enable_service_desc),
-                checked = store.enableService,
-                onCheckedChange = {
-                    updateStorage(
-                        storeFlow, store.copy(
-                            enableService = it
-                        )
-                    )
-                })
-            Divider()
-        }
-
         Row(
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically,
@@ -137,7 +138,7 @@ fun ControlPage() {
                 .clickable {
                     navController.navigate(ClickLogPageDestination)
                 }
-                .padding(10.dp),
+                .padding(10.dp, 5.dp),
         ) {
             Column(modifier = Modifier.weight(1f)) {
                 Text(
@@ -155,7 +156,7 @@ fun ControlPage() {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(10.dp)
+                .padding(10.dp, 5.dp)
         ) {
             Text(text = subsStatus, fontSize = 18.sp)
             if (latestRecordDesc != null) {
